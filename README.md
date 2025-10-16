@@ -1,6 +1,6 @@
 # Dtrust API
 
-An asset verification tool built on the Hedera Hashgraph network. This API allows authenticated organizations to anchor cryptographic proofs of their documents onto the Hedera Consensus Service (HCS) and verify them later.
+An asset verification tool built on the Hedera Hashgraph network. This API allows authenticated organizations to anchor cryptographic proofs of their documents onto the Hedera Consensus Service (HCS) that can be verified by the public.
 
 ## Features
 
