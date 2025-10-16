@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Dtrust API
 
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ RUN npm run prisma:generate
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
