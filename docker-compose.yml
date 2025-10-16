@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: dtrust-postgres
+    environment:
+      POSTGRES_USER: dtrust
+      POSTGRES_PASSWORD: dtrust_password
+      POSTGRES_DB: dtrust_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dtrust-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dtrust"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Dtrust API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dtrust-api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: "postgresql://dtrust:dtrust_password@postgres:5432/dtrust_db?schema=public"
+      HEDERA_ACCOUNT_ID: "${HEDERA_ACCOUNT_ID}"
+      HEDERA_PRIVATE_KEY: "${HEDERA_PRIVATE_KEY}"
+      HCS_TOPIC_ID: "${HCS_TOPIC_ID}"
+      HEDERA_NETWORK: "${HEDERA_NETWORK:-testnet}"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - dtrust-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  dtrust-network:
+    driver: bridge
