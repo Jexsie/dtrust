@@ -23,7 +23,7 @@
     "@hashgraph/sdk": "^2.49.2",
     "@prisma/client": "^5.19.1",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^5.1.0",
     "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
