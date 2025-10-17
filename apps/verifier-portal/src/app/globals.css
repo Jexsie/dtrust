@@ -1,0 +1,168 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root {
+  --background-dark: #191919;
+  --foreground-dark: #e0e0e0;
+  --card-dark: #1a1a1a;
+  --border-dark: #333333;
+  --primary: #ff0055;
+  --success: #00ffff;
+  --danger: #ff0055;
+}
+
+[data-theme="light"] {
+  --background-light: #f8fafc;
+  --foreground-light: #1e293b;
+  --card-light: #ffffff;
+  --border-light: #e2e8f0;
+  --primary: #059669;
+  --success: #22c55e;
+  --danger: #ef4444;
+}
+
+@theme inline {
+  --color-background: var(--background-dark);
+  --color-foreground: var(--foreground-dark);
+  --color-card: var(--card-dark);
+  --color-border: var(--border-dark);
+  --color-primary: var(--primary);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background-dark);
+  color: var(--foreground-dark);
+  font-family: "Montserrat", sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Digital rain effect */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.2;
+  animation: digital-rain 10s linear infinite;
+}
+
+@keyframes digital-rain {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Dot pattern background */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml,%3Csvg width="6" height="6" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%239C92AC" fill-opacity="0.1" fill-rule="evenodd"%3E%3Cpath d="M0 0h3v3H0V0zm3 3h3v3H3V3z"/%3E%3C/g%3E%3C/svg%3E');
+  opacity: 0.1;
+  z-index: -1;
+  pointer-events: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Neon glow effects */
+.shadow-neon-glow-red {
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.7), 0 0 30px rgba(255, 0, 85, 0.4);
+}
+
+.shadow-neon-glow-blue {
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.4);
+}
+
+/* Drag over effect */
+.drag-over {
+  border-style: solid !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 15px rgba(255, 0, 85, 0.7), 0 0 30px rgba(255, 0, 85, 0.4) !important;
+}
+
+/* Card enter animation */
+@keyframes neon-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-enter-active {
+  animation: neon-fade-in-up 0.5s ease-out forwards;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--card-dark);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--success);
+}
+
+/* Text shadow for neon effect */
+.text-neon-red {
+  text-shadow: 0 0 10px #ff0055;
+}
+
+.text-neon-blue {
+  text-shadow: 0 0 10px #00ffff;
+}
