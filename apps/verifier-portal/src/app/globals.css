@@ -6,16 +6,6 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 :root {
-  --background-dark: #191919;
-  --foreground-dark: #e0e0e0;
-  --card-dark: #1a1a1a;
-  --border-dark: #333333;
-  --primary: #ff0055;
-  --success: #00ffff;
-  --danger: #ff0055;
-}
-
-[data-theme="light"] {
   --background-light: #f8fafc;
   --foreground-light: #1e293b;
   --card-light: #ffffff;
@@ -25,11 +15,21 @@
   --danger: #ef4444;
 }
 
+[data-theme="dark"] {
+  --background-dark: #191919;
+  --foreground-dark: #e0e0e0;
+  --card-dark: #1a1a1a;
+  --border-dark: #333333;
+  --primary: #059669;
+  --success: #00ffff;
+  --danger: #ff0055;
+}
+
 @theme inline {
-  --color-background: var(--background-dark);
-  --color-foreground: var(--foreground-dark);
-  --color-card: var(--card-dark);
-  --color-border: var(--border-dark);
+  --color-background: var(--background-light);
+  --color-foreground: var(--foreground-light);
+  --color-card: var(--card-light);
+  --color-border: var(--border-light);
   --color-primary: var(--primary);
   --color-success: var(--success);
   --color-danger: var(--danger);
@@ -38,8 +38,8 @@
 }
 
 body {
-  background: var(--background-dark);
-  color: var(--foreground-dark);
+  background: var(--background-light);
+  color: var(--foreground-light);
   font-family: "Montserrat", sans-serif;
   position: relative;
   overflow-x: hidden;
@@ -110,11 +110,11 @@ a {
 
 /* Neon glow effects */
 .shadow-neon-glow-red {
-  box-shadow: 0 0 15px rgba(255, 0, 85, 0.7), 0 0 30px rgba(255, 0, 85, 0.4);
+  /* box-shadow: 0 0 15px rgba(255, 0, 85, 0.7), 0 0 30px rgba(255, 0, 85, 0.4); */
 }
 
 .shadow-neon-glow-blue {
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.4);
+  box-shadow: 0 0 2px rgba(0, 255, 255, 0.7), 0 0 5px rgba(0, 255, 255, 0.4);
 }
 
 /* Drag over effect */
@@ -146,7 +146,7 @@ a {
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--card-dark);
+  background: var(--card-light);
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
