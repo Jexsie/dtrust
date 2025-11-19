@@ -7,7 +7,7 @@ import { Router } from "express";
 import { uploadDocument } from "../middleware/fileupload.middleware";
 import { verifyDocument } from "../controllers/verify.controller";
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * POST /api/v1/verify

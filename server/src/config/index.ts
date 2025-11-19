@@ -10,6 +10,9 @@ dotenv.config();
 interface Config {
   port: number;
   nodeEnv: string;
+  cors: {
+    origins: string[];
+  };
   database: {
     url: string;
   };
@@ -18,6 +21,7 @@ interface Config {
     privateKey: string;
     topicId: string;
     network: "mainnet" | "testnet" | "previewnet";
+    registryContractId?: string; // Optional: IssuerRegistry contract ID
   };
 }
 
@@ -45,11 +49,32 @@ function validateConfig(): void {
 validateConfig();
 
 /**
+ * Parse CORS origins from environment variable
+ * Supports comma-separated list of URLs
+ * Defaults to localhost URLs for development
+ */
+function parseCorsOrigins(): string[] {
+  const defaultOrigins = [
+    "http://localhost:3002", // Issuer portal (dev)
+    "http://localhost:3003", // Verifier portal (dev)
+  ];
+
+  if (process.env.CORS_ORIGINS) {
+    return process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim());
+  }
+
+  return defaultOrigins;
+}
+
+/**
  * Application configuration object
  */
 const config: Config = {
   port: parseInt(process.env.PORT || "3000", 10),
   nodeEnv: process.env.NODE_ENV || "development",
+  cors: {
+    origins: parseCorsOrigins(),
+  },
   database: {
     url: process.env.DATABASE_URL!,
   },
@@ -61,6 +86,7 @@ const config: Config = {
       | "mainnet"
       | "testnet"
       | "previewnet",
+    registryContractId: process.env.REGISTRY_CONTRACT_ID,
   },
 };
 

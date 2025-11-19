@@ -12,10 +12,20 @@ datasource db {
 model Organization {
   id              String         @id @default(cuid())
   name            String         @unique
+  email           String
+  contactName     String
+  contactPhone    String?
+  website         String?
+  address         String?
+  city            String?
+  country         String?
+  description     String?
+  did             String?        @unique
+  didPrivateKey   String?
+  isVerified      Boolean       @default(false)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   apiKeys         ApiKey[]
-  documentProofs  DocumentProof[]
 }
 
 model ApiKey {
@@ -33,8 +43,7 @@ model DocumentProof {
   documentHash        String       @unique // SHA-256 hash of the document
   hederaTransactionId String
   consensusTimestamp  String
-  organizationId      String
-  organization        Organization @relation(fields: [organizationId], references: [id])
+  issuerDid           String       // The DID of the issuer organization
   createdAt           DateTime     @default(now())
 }
 

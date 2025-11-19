@@ -3,56 +3,99 @@
  * Handles document anchoring to the Hedera network
  */
 
-import { Response } from "express";
-import { AuthenticatedRequest } from "../middleware/auth.middleware";
+import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
 import {
-  calculateFileHash,
   findProofByHash,
   createDocumentProof,
 } from "../../services/document.service";
 import { submitHashToHCS } from "../../services/hedera.service";
+import { verifySignature } from "../../services/did.service";
+
+const prisma = new PrismaClient();
+
+/**
+ * Request body interface for anchor endpoint
+ */
+interface AnchorRequest {
+  documentHash: string;
+  did: string;
+  signature: string;
+}
 
 /**
  * Anchors a document to the Hedera Consensus Service (HCS)
  *
  * This endpoint:
- * 1. Calculates the SHA-256 hash of the uploaded document
- * 2. Checks if the document has already been anchored
- * 3. If not, submits the hash to HCS
- * 4. Saves the proof to the database
+ * 1. Accepts documentHash, did, and signature in JSON
+ * 2. Verifies the signature using the DID's public key (signature is the authentication)
+ * 3. Looks up the organization by DID (for billing/audit purposes)
+ * 4. Checks if the document has already been anchored
+ * 5. If not, submits the proof (hash, did, signature) to HCS as JSON
+ * 6. Saves the proof to the database
  *
- * @param req - Authenticated Express request with file upload
+ * Authentication: Signature-based (no API key required)
+ * The signature cryptographically proves ownership of the DID
+ *
+ * @param req - Express request with JSON body
  * @param res - Express response object
  */
 export async function anchorDocument(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response
 ): Promise<void> {
   try {
-    if (!req.file) {
+    const body = req.body as AnchorRequest;
+
+    // Validate request body
+    if (!body.documentHash || !body.did || !body.signature) {
       res.status(400).json({
         error: "Bad Request",
         message:
-          'No document file provided. Please upload a file using the "document" field.',
+          "Missing required fields. Please provide: documentHash, did, and signature.",
       });
       return;
     }
 
-    if (!req.organization) {
-      res.status(401).json({
-        error: "Unauthorized",
-        message: "Organization information not found",
+    const { documentHash, did, signature } = body;
+
+    console.log(`Anchoring document with DID: ${did}`);
+    console.log(`Document hash: ${documentHash}`);
+
+    // Verify the signature before proceeding
+    // This is the authentication - if signature is valid, we know the sender owns the DID
+    console.log("Verifying signature...");
+    const isValid = await verifySignature(did, documentHash, signature);
+
+    if (!isValid) {
+      res.status(403).json({
+        error: "Forbidden",
+        message:
+          "Signature verification failed. The signature is not valid for this document hash and DID.",
       });
       return;
     }
 
     console.log(
-      `Anchoring document for organization: ${req.organization.name}`
+      "Signature verified successfully - sender authenticated via cryptographic proof"
     );
 
-    const documentHash = calculateFileHash(req.file.buffer);
-    console.log(`Document hash calculated: ${documentHash}`);
+    // Look up organization by DID (for billing/audit purposes)
+    // This is optional - the signature already proves identity
+    const organization = await prisma.organization.findUnique({
+      where: { did: did },
+      select: { id: true, name: true },
+    });
 
+    if (organization) {
+      console.log(
+        `Document anchored by registered organization: ${organization.name}`
+      );
+    } else {
+      console.log(`Document anchored by DID not in our registry: ${did}`);
+    }
+
+    // Check if document has already been anchored
     const existingProof = await findProofByHash(documentHash);
 
     if (existingProof) {
@@ -63,22 +106,30 @@ export async function anchorDocument(
           documentHash: existingProof.documentHash,
           hederaTransactionId: existingProof.hederaTransactionId,
           consensusTimestamp: existingProof.consensusTimestamp,
+          issuerDid: existingProof.issuerDid,
           anchoredAt: existingProof.createdAt,
-          anchoredByOrganizationId: existingProof.organizationId,
         },
       });
       return;
     }
 
-    console.log("Submitting hash to Hedera HCS...");
-    const hederaResult = await submitHashToHCS(documentHash);
-    console.log("Hash submitted successfully to HCS");
+    // Create the proof message as JSON string
+    const proofMessage = JSON.stringify({
+      hash: documentHash,
+      did: did,
+      signature: signature,
+    });
 
+    console.log("Submitting proof to Hedera HCS...");
+    const hederaResult = await submitHashToHCS(proofMessage);
+    console.log("Proof submitted successfully to HCS");
+
+    // Save proof to database
     const proof = await createDocumentProof({
       documentHash,
       hederaTransactionId: hederaResult.transactionId,
       consensusTimestamp: hederaResult.consensusTimestamp,
-      organizationId: req.organization.id,
+      issuerDid: did,
     });
 
     console.log(`Document proof saved to database: ${proof.id}`);
@@ -89,10 +140,21 @@ export async function anchorDocument(
         documentHash: proof.documentHash,
         hederaTransactionId: proof.hederaTransactionId,
         consensusTimestamp: proof.consensusTimestamp,
+        issuerDid: proof.issuerDid,
       },
     });
   } catch (error) {
     console.error("Error anchoring document:", error);
+
+    // Check if it's a signature verification error
+    if (error instanceof Error && error.message.includes("signature")) {
+      res.status(403).json({
+        error: "Forbidden",
+        message: "Signature verification failed.",
+        details: error.message,
+      });
+      return;
+    }
 
     // Check if it's a Hedera-specific error
     if (error instanceof Error && error.message.includes("Hedera")) {

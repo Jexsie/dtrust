@@ -12,10 +12,18 @@ import {
 interface VerificationResultProps {
   isProcessing: boolean;
   result: {
-    verified: boolean;
+    status?: "VERIFIED_ON_CHAIN" | "NOT_VERIFIED" | "VERIFIED";
+    verified?: boolean;
     transactionId?: string;
     timestamp?: string;
     organization?: string;
+    isTrustedIssuer?: boolean;
+    proof?: {
+      hash: string;
+      did: string;
+      signature: string;
+      consensusTimestamp: string;
+    };
   } | null;
   isLightTheme: boolean;
 }
@@ -50,47 +58,93 @@ export default function VerificationResult({
           </motion.div>
         )}
 
-        {!isProcessing && result?.verified && (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="card-enter-active bg-[#1a1a1a] dark:bg-white rounded-xl overflow-hidden shadow-neon-glow-blue border-l-8 border-[#00ffff] dark:border-[#22c55e]"
-          >
-            <div className="p-6 flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <CheckCircle
-                  className="text-[#00ffff] dark:text-[#22c55e] drop-shadow-lg"
-                  size={48}
-                  style={
-                    !isLightTheme ? { textShadow: "0 0 10px #00ffff" } : {}
-                  }
-                />
+        {!isProcessing &&
+          result &&
+          (result.verified ||
+            result.status === "VERIFIED_ON_CHAIN" ||
+            result.status === "VERIFIED") && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="card-enter-active bg-[#1a1a1a] dark:bg-white rounded-xl overflow-hidden shadow-neon-glow-blue border-l-8 border-[#00ffff] dark:border-[#22c55e]"
+            >
+              <div className="p-6 flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <CheckCircle
+                    className="text-[#00ffff] dark:text-[#22c55e] drop-shadow-lg"
+                    size={48}
+                    style={
+                      !isLightTheme ? { textShadow: "0 0 10px #00ffff" } : {}
+                    }
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-bold text-[#00ffff] dark:text-[#22c55e] uppercase tracking-wider">
+                    {result.status === "VERIFIED_ON_CHAIN"
+                      ? result.isTrustedIssuer
+                        ? "✅ VERIFIED & TRUSTED"
+                        : "✅ VERIFIED (ISSUER UNKNOWN)"
+                      : "VERIFIED!"}
+                  </h3>
+                  {result.status === "VERIFIED_ON_CHAIN" && (
+                    <div className="mt-2">
+                      {result.isTrustedIssuer ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/50">
+                          ✅ Verified & Trusted
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500/20 text-yellow-500 border border-yellow-500/50">
+                          ⚠️ Verified (Issuer Unknown)
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {result.proof?.did && (
+                    <p className="mt-2 text-[#e0e0e0] dark:text-[#1e293b]">
+                      <strong>Issuer:</strong>{" "}
+                      <span className="font-['Share_Tech_Mono'] text-[#00ffff] dark:text-[#22c55e]">
+                        {result.proof.did}
+                      </span>
+                    </p>
+                  )}
+                  <p className="mt-2 text-[#e0e0e0] dark:text-[#1e293b]">
+                    <strong>Consensus Timestamp:</strong>{" "}
+                    <span className="font-['Share_Tech_Mono'] text-[#00ffff] dark:text-[#22c55e]">
+                      {result.proof?.consensusTimestamp ||
+                        result.timestamp ||
+                        "N/A"}
+                    </span>
+                  </p>
+                  {result.proof?.hash && (
+                    <p className="mt-2 text-[#e0e0e0] dark:text-[#1e293b] text-xs break-all">
+                      <strong>Hash:</strong>{" "}
+                      <span className="font-['Share_Tech_Mono'] text-[#00ffff] dark:text-[#22c55e]">
+                        {result.proof.hash}
+                      </span>
+                    </p>
+                  )}
+                  <a
+                    className="inline-block mt-4 text-sm font-semibold text-[#00ffff] dark:text-primary hover:underline hover:shadow-neon-glow-blue transition-shadow"
+                    href={`https://hashscan.io/${
+                      result.proof?.consensusTimestamp ? "mainnet" : "testnet"
+                    }/transaction/${
+                      result.proof?.consensusTimestamp || result.transactionId
+                    }`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    VIEW ON HASHSCAN{" "}
+                    <ArrowRight
+                      className="inline align-middle ml-1"
+                      size={16}
+                    />
+                  </a>
+                </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-[#00ffff] dark:text-[#22c55e] uppercase tracking-wider">
-                  VERIFIED!
-                </h3>
-                <p className="mt-2 text-[#e0e0e0] dark:text-[#1e293b]">
-                  <strong>Hedera Transaction ID:</strong>{" "}
-                  <span className="font-['Share_Tech_Mono'] text-[#00ffff] dark:text-[#22c55e]">
-                    {result.transactionId || "0.0.123456-1234567890"}
-                  </span>
-                </p>
-                <a
-                  className="inline-block mt-4 text-sm font-semibold text-[#00ffff] dark:text-primary hover:underline hover:shadow-neon-glow-blue transition-shadow"
-                  href={`https://hashscan.io/mainnet/transaction/${result.transactionId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  VIEW ON HASHSCAN{" "}
-                  <ArrowRight className="inline align-middle ml-1" size={16} />
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
         {!isProcessing && result && !result.verified && (
           <motion.div

@@ -10,6 +10,9 @@ importers:
 
   apps/issuer-portal:
     dependencies:
+      '@hashgraph/sdk':
+        specifier: ^2.49.2
+        version: 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
       framer-motion:
         specifier: ^12.23.24
         version: 12.23.24(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -18,7 +21,7 @@ importers:
         version: 0.546.0(react@19.1.0)
       next:
         specifier: ^15.5.5
-        version: 15.5.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 15.5.5(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -56,6 +59,15 @@ importers:
 
   apps/verifier-portal:
     dependencies:
+      '@hashgraph/sdk':
+        specifier: ^2.49.2
+        version: 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core':
+        specifier: ^0.1.6
+        version: 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/crypto':
+        specifier: ^0.1.6
+        version: 0.1.7
       framer-motion:
         specifier: ^12.23.24
         version: 12.23.24(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -64,7 +76,7 @@ importers:
         version: 0.546.0(react@19.1.0)
       next:
         specifier: ^15.5.5
-        version: 15.5.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 15.5.5(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0
@@ -105,9 +117,27 @@ importers:
       '@hashgraph/sdk':
         specifier: ^2.49.2
         version: 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/client':
+        specifier: ^0.1.6
+        version: 0.1.6(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core':
+        specifier: ^0.1.6
+        version: 0.1.6(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/crypto':
+        specifier: ^0.1.6
+        version: 0.1.7
+      '@hiero-did-sdk/registrar':
+        specifier: ^0.1.6
+        version: 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/resolver':
+        specifier: ^0.1.6
+        version: 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
       '@prisma/client':
         specifier: ^5.19.1
         version: 5.22.0(prisma@5.22.0)
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -118,6 +148,9 @@ importers:
         specifier: ^1.4.5-lts.1
         version: 1.4.5-lts.2
     devDependencies:
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.19
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.23
@@ -300,6 +333,36 @@ packages:
     resolution: {integrity: sha512-bkFqkLhh3pMBUQQkpVgWDWq/lqzc2678eUyDlTBhRqhCHFguYYGM0Efga7tYk4TogG/3x0EEl66/OQ+WGbWB/Q==}
     engines: {node: '>=6.9.0'}
 
+  '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
+    resolution: {integrity: sha512-P7swiOAdF7aSi0H+tHtHtr6zrpF3aAq/W9FXx5HektRvLTM2O89xCyXF3pk7pLc7QpaY7AoaE8UowVf9QBdh3w==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
+    resolution: {integrity: sha512-1liF6fgowph0JxBbYnAS7ZlqNYLf000Qnj4KjqPNW4GViKrEql2MgZnAsExhY9LSy8dnvA4C0qHEBgPrll0z0w==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@cbor-extract/cbor-extract-linux-arm64@2.2.0':
+    resolution: {integrity: sha512-rQvhNmDuhjTVXSPFLolmQ47/ydGOFXtbR7+wgkSY0bdOxCFept1hvg59uiLPT2fVDuJFuEy16EImo5tE2x3RsQ==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@cbor-extract/cbor-extract-linux-arm@2.2.0':
+    resolution: {integrity: sha512-QeBcBXk964zOytiedMPQNZr7sg0TNavZeuUCD6ON4vEOU/25+pLhNN6EDIKJ9VLTKaZ7K7EaAriyYQ1NQ05s/Q==}
+    cpu: [arm]
+    os: [linux]
+
+  '@cbor-extract/cbor-extract-linux-x64@2.2.0':
+    resolution: {integrity: sha512-cWLAWtT3kNLHSvP4RKDzSTX9o0wvQEEAj4SKvhWuOVZxiDAeQazr9A+PSiRILK1VYMLeDml89ohxCnUNQNQNCw==}
+    cpu: [x64]
+    os: [linux]
+
+  '@cbor-extract/cbor-extract-win32-x64@2.2.0':
+    resolution: {integrity: sha512-l2M+Z8DO2vbvADOBNLbbh9y5ST1RY5sqkWOg/58GkUPBYou/cuNZ68SGQ644f1CvZ8kcOxyZtw06+dxWHIoN/w==}
+    cpu: [x64]
+    os: [win32]
+
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
@@ -438,6 +501,66 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       bn.js: 5.2.1
+
+  '@hiero-did-sdk/cache@0.1.7':
+    resolution: {integrity: sha512-Bl90SRdbB4gWhNLph52NZ4PpI6XKtTWg3WfQuDYJfsbR2cer2qN/nI8ouKSxjBIs12nix9p7NXkfJ0KT3glPhQ==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/client@0.1.6':
+    resolution: {integrity: sha512-PT/OgQ6aT5OcQaE2O3XaMmqemoCu8zyQwSJ17bsqz9+69NsHvtUQ8P6Yt2W4SMbI+ZdB+wX4I2EpBu8luooEhQ==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/client@0.1.7':
+    resolution: {integrity: sha512-69Gf3Qi3GUcGBgcHD8t8eWFZpy8f3ggWYMqv7D56nkzUHWEM8kkRBs9uzdQ9bDPFpyNHipsDi4T+ySMMTXH9qg==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/core@0.1.6':
+    resolution: {integrity: sha512-+diyFAOaLHtuTLATiOGlxcNvzlZw7PX9SPKD1OYafsFeo6g2QDKjKN8yDdEq+p9avBS5VKfO8TAlg6qJAGeaZA==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/core@0.1.7':
+    resolution: {integrity: sha512-rdwv32s8+ZD57YvuojscmrrTwDJ03dkghyRYxRgTqhUzM5lfmgzUBwANijI28PraAWTVjtoOegTBkTXbglXdFA==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/crypto@0.1.7':
+    resolution: {integrity: sha512-GKnwlJYbQyL24qmQ24r8Vzhpw5sD174+Ox6qrG3i71B29eGPotTOoddXDNp3cLuzcxJL/aKA6fHX6tTd6M/8qQ==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/hcs@0.1.7':
+    resolution: {integrity: sha512-TianBY6lGI91UosEK5g93AYkBpspxZioLKrpOJrTYf3mWEow+WAkh/3SpdMCoAp9/fAYa1HPAA0sQFn7h/wWaw==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/lifecycle@0.1.7':
+    resolution: {integrity: sha512-gE4E/c/awP3ChlE+rxmMGzMHHiTOG5Ak5W2FmpAPzxgSQsxOs/2afUPsNqXD93e40RoVS3SxkwCboEBKtNQBHQ==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/messages@0.1.7':
+    resolution: {integrity: sha512-Su1jMBx/b9XFN5yk8Ktb21sNLr7yf+7f00msxkfaANmzJKVhFxUhKfnfEyKVHGx/XYK2IUM6vBhkdwGDbfJ/OQ==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/publisher-internal@0.1.7':
+    resolution: {integrity: sha512-5WnQZKcP7i8sVYcORonHwKVYvofoE5ocn3CiW/lwjZet6erUeFVKoPjh9HH3M2n5fCqYhr6LBk1CDJUn5iyQyQ==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/registrar@0.1.7':
+    resolution: {integrity: sha512-x61AcMzKGR1a/DQAnowmd7kvklYpsS38ndIx0d9FFSz17dqtdAI703NayUTSEP7wl4pKNEu6YIGacXeVrKKiyA==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/resolver@0.1.7':
+    resolution: {integrity: sha512-XhwiiPL8ZV+jLDc/nfCac59ul0B8TLTuu1JpRAwOcfEKAEP8W+NaGcS2kR5HkPsVkmpEsmMTSmT5MNyqDCHAEw==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/signer-internal@0.1.7':
+    resolution: {integrity: sha512-I+NWZp8ygMGZkC0t8riF4/+54cVcgjD+iF3ncjZ7jMwv44L2Mk7FC3DqZHfzUN6fYkrSp10+eK6YerXB5rJ6Nw==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/verifier-internal@0.1.7':
+    resolution: {integrity: sha512-t+04rI7k0H3dA7/z4F3NtcEqHjK3ovTZRG1K5TTbyrz7bW036dpZR8ABV3k37+szvaRtnUhQUQQonvTlpmtgxg==}
+    engines: {node: '>=20'}
+
+  '@hiero-did-sdk/zstd@0.1.7':
+    resolution: {integrity: sha512-FovR2yNNMAsplWLXjx1igyrgijHLevy6oZmni3oMUVqfDwddFqE4/vEMyocdIhJxeRQzayjQMH74wgRcgaOn+Q==}
+    engines: {node: '>=20'}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -843,6 +966,9 @@ packages:
   '@rushstack/eslint-patch@1.14.0':
     resolution: {integrity: sha512-WJFej426qe4RWOm9MMtP4V3CV4AucXolQty+GRgAWLgQXmpCuwzs7hEpxxhSc/znXUSxum9d/P/32MW0FlAAlA==}
 
+  '@scure/base@1.2.6':
+    resolution: {integrity: sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg==}
+
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
@@ -975,6 +1101,9 @@ packages:
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
+
+  '@types/cors@2.8.19':
+    resolution: {integrity: sha512-mFNylyeyqN93lfe/9CSxOGREz8cpzAhH+E93xJ4xWQf62V8sQ/24reV2nyzUWM6H6Xji+GGHpkbLe7pVoUEskg==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -1467,6 +1596,13 @@ packages:
   caniuse-lite@1.0.30001751:
     resolution: {integrity: sha512-A0QJhug0Ly64Ii3eIqHu5X51ebln3k4yTUkY1j8drqpWHVreg/VLijN48cZ1bYPiqOQuqpkIKnzr/Ul8V+p6Cw==}
 
+  cbor-extract@2.2.0:
+    resolution: {integrity: sha512-Ig1zM66BjLfTXpNgKpvBePq271BPOvu8MR0Jl080yG7Jsl+wAZunfrwiwA+9ruzm/WEdIV5QF/bjDZTqyAIVHA==}
+    hasBin: true
+
+  cbor-x@1.6.0:
+    resolution: {integrity: sha512-0kareyRwHSkL6ws5VXHEf8uY1liitysCVJjlmhaLG+IXLqhSaOO+t63coaso7yjwEzWZzLy8fJo06gZDVQM9Qg==}
+
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
@@ -1549,6 +1685,10 @@ packages:
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
+
+  cors@2.8.5:
+    resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
+    engines: {node: '>= 0.10'}
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
@@ -2717,6 +2857,10 @@ packages:
       sass:
         optional: true
 
+  node-gyp-build-optional-packages@5.1.1:
+    resolution: {integrity: sha512-+P72GAjVAbTxjjwUmwjVrqrdZROD4nf8KgpBoDxqXXTiYZZt/ud60dE5yvCSr9lRO8e8yv6kgJIC0K0PfZFVQw==}
+    hasBin: true
+
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 
@@ -3455,6 +3599,9 @@ packages:
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
+  varint@6.0.0:
+    resolution: {integrity: sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg==}
+
   vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
@@ -3746,6 +3893,24 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
+  '@cbor-extract/cbor-extract-darwin-arm64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-darwin-x64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-linux-arm64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-linux-arm@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-linux-x64@2.2.0':
+    optional: true
+
+  '@cbor-extract/cbor-extract-win32-x64@2.2.0':
+    optional: true
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -4005,6 +4170,167 @@ snapshots:
       - expo-crypto
       - react-native
       - supports-color
+
+  '@hiero-did-sdk/cache@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/client@0.1.6(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/client@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/core@0.1.6(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@scure/base': 1.2.6
+      buffer: 6.0.3
+      cbor-x: 1.6.0
+      varint: 6.0.0
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/core@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@scure/base': 1.2.6
+      buffer: 6.0.3
+      cbor-x: 1.6.0
+      varint: 6.0.0
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/crypto@0.1.7':
+    dependencies:
+      buffer: 6.0.3
+
+  '@hiero-did-sdk/hcs@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/cache': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/client': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/crypto': 0.1.7
+      '@hiero-did-sdk/zstd': 0.1.7
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/lifecycle@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/messages@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/lifecycle': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/resolver': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/publisher-internal@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/registrar@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/lifecycle': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/messages': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/publisher-internal': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/resolver': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/signer-internal': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/verifier-internal': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/resolver@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/client': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/hcs': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/verifier-internal': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/signer-internal@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/verifier-internal@0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))':
+    dependencies:
+      '@hashgraph/sdk': 2.75.0(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      '@hiero-did-sdk/core': 0.1.7(bn.js@5.2.2)(react-native@0.82.0(@babel/core@7.28.4)(@types/react@19.2.2)(react@19.1.0))
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bn.js
+      - expo-crypto
+      - react-native
+      - supports-color
+
+  '@hiero-did-sdk/zstd@0.1.7': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -4382,6 +4708,8 @@ snapshots:
 
   '@rushstack/eslint-patch@1.14.0': {}
 
+  '@scure/base@1.2.6': {}
+
   '@sinclair/typebox@0.27.8': {}
 
   '@sinonjs/commons@3.0.1':
@@ -4508,6 +4836,10 @@ snapshots:
       '@types/node': 20.19.21
 
   '@types/connect@3.4.38':
+    dependencies:
+      '@types/node': 20.19.21
+
+  '@types/cors@2.8.19':
     dependencies:
       '@types/node': 20.19.21
 
@@ -5057,6 +5389,22 @@ snapshots:
 
   caniuse-lite@1.0.30001751: {}
 
+  cbor-extract@2.2.0:
+    dependencies:
+      node-gyp-build-optional-packages: 5.1.1
+    optionalDependencies:
+      '@cbor-extract/cbor-extract-darwin-arm64': 2.2.0
+      '@cbor-extract/cbor-extract-darwin-x64': 2.2.0
+      '@cbor-extract/cbor-extract-linux-arm': 2.2.0
+      '@cbor-extract/cbor-extract-linux-arm64': 2.2.0
+      '@cbor-extract/cbor-extract-linux-x64': 2.2.0
+      '@cbor-extract/cbor-extract-win32-x64': 2.2.0
+    optional: true
+
+  cbor-x@1.6.0:
+    optionalDependencies:
+      cbor-extract: 2.2.0
+
   chalk@4.1.2:
     dependencies:
       ansi-styles: 4.3.0
@@ -5151,6 +5499,11 @@ snapshots:
   cookie@0.7.1: {}
 
   core-util-is@1.0.3: {}
+
+  cors@2.8.5:
+    dependencies:
+      object-assign: 4.1.1
+      vary: 1.1.2
 
   create-require@1.1.1: {}
 
@@ -6553,7 +6906,7 @@ snapshots:
 
   negotiator@0.6.3: {}
 
-  next@15.5.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  next@15.5.5(@babel/core@7.28.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@next/env': 15.5.5
       '@swc/helpers': 0.5.15
@@ -6561,7 +6914,7 @@ snapshots:
       postcss: 8.4.31
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-      styled-jsx: 5.1.6(react@19.1.0)
+      styled-jsx: 5.1.6(@babel/core@7.28.4)(react@19.1.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.5.5
       '@next/swc-darwin-x64': 15.5.5
@@ -6575,6 +6928,11 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+
+  node-gyp-build-optional-packages@5.1.1:
+    dependencies:
+      detect-libc: 2.1.2
+    optional: true
 
   node-int64@0.4.0: {}
 
@@ -7262,10 +7620,12 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  styled-jsx@5.1.6(react@19.1.0):
+  styled-jsx@5.1.6(@babel/core@7.28.4)(react@19.1.0):
     dependencies:
       client-only: 0.0.1
       react: 19.1.0
+    optionalDependencies:
+      '@babel/core': 7.28.4
 
   supports-color@7.2.0:
     dependencies:
@@ -7483,6 +7843,8 @@ snapshots:
   utils-merge@1.0.1: {}
 
   v8-compile-cache-lib@3.0.1: {}
+
+  varint@6.0.0: {}
 
   vary@1.1.2: {}
 
