@@ -69,16 +69,17 @@ export async function POST(request: Request) {
 
     // Reconstruct the private key from hex string
     // PrivateKey.fromString() accepts the raw hex format from toStringRaw()
-    const privateKey = PrivateKey.fromString(didPrivateKey);
+    const privateKey = PrivateKey.fromStringED25519(didPrivateKey);
     const signatureBytes = privateKey.sign(hashBuffer);
     const signature = Buffer.from(signatureBytes).toString("hex");
 
     // Call the backend anchor API with API key authentication
+    // The server expects: Authorization: Bearer <API_KEY>
     const response = await fetch(`${apiUrl}/api/v1/anchor`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-Key": apiKey, // API key authentication
+        Authorization: `Bearer ${apiKey}`, // API key authentication as Bearer token
       },
       body: JSON.stringify({
         documentHash: hash,

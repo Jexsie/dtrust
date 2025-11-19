@@ -27,17 +27,21 @@ interface AnchorRequest {
 /**
  * Anchors a document to the Hedera Consensus Service (HCS)
  *
- * This endpoint:
- * 1. Requires API key authentication (validates organization)
- * 2. Accepts documentHash, did, and signature in JSON
- * 3. Verifies the signature using the DID's public key
- * 4. Ensures the DID belongs to the authenticated organization
+ * SECURITY FLOW (prevents malicious uploads):
+ * 1. Validates request body and input formats
+ * 2. Authenticates organization via API key (Bearer token)
+ * 3. CRITICAL: Verifies signature FIRST using DID's public key from Hedera network
+ *    - This cryptographically proves the requester has the private key
+ *    - Prevents malicious uploads even if someone has the DID
+ * 4. Verifies the DID belongs to the authenticated organization
+ *    - Ensures API key matches the DID owner
+ *    - Prevents using someone else's DID
  * 5. Checks if the document has already been anchored
  * 6. If not, submits the proof (hash, did, signature) to HCS as JSON
  * 7. Saves the proof to the database
  *
- * Authentication: API key required (X-API-Key header)
- * The signature cryptographically proves ownership of the DID
+ * Authentication: API key required (Authorization: Bearer <API_KEY>)
+ * The signature cryptographically proves ownership of the DID's private key
  *
  * @param req - Authenticated Express request with JSON body
  * @param res - Express response object
@@ -49,7 +53,7 @@ export async function anchorDocument(
   try {
     const body = req.body as AnchorRequest;
 
-    // Validate request body
+    // Step 1: Validate request body
     if (!body.documentHash || !body.did || !body.signature) {
       res.status(400).json({
         error: "Bad Request",
@@ -61,11 +65,37 @@ export async function anchorDocument(
 
     const { documentHash, did, signature } = body;
 
-    // Get the authenticated organization from the API key
+    // Validate format of inputs
+    if (typeof documentHash !== "string" || documentHash.length === 0) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: "documentHash must be a non-empty string",
+      });
+      return;
+    }
+
+    if (typeof did !== "string" || !did.startsWith("did:hedera:")) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: "did must be a valid Hedera DID (starting with 'did:hedera:')",
+      });
+      return;
+    }
+
+    if (typeof signature !== "string" || signature.length === 0) {
+      res.status(400).json({
+        error: "Bad Request",
+        message: "signature must be a non-empty hex string",
+      });
+      return;
+    }
+
+    // Step 2: Get the authenticated organization from the API key
     if (!req.organization) {
       res.status(401).json({
         error: "Unauthorized",
-        message: "Organization information not found",
+        message:
+          "Organization information not found. Invalid or missing API key.",
       });
       return;
     }
@@ -73,55 +103,80 @@ export async function anchorDocument(
     const authenticatedOrg = req.organization;
 
     console.log(
-      `Anchoring document for organization: ${authenticatedOrg.name} (${authenticatedOrg.id})`
+      `Anchoring request from authenticated organization: ${authenticatedOrg.name} (${authenticatedOrg.id})`
     );
-    console.log(`Anchoring document with DID: ${did}`);
-    console.log(`Document hash: ${documentHash}`);
+    console.log(`Requested DID: ${did}`);
+    console.log(`Document hash: ${documentHash.substring(0, 16)}...`);
 
-    // Verify that the DID belongs to the authenticated organization
-    // Fetch the full organization record to check the DID
+    // Step 3: CRITICAL SECURITY CHECK - Verify signature FIRST
+    // This prevents malicious uploads even if someone has the DID
+    // The signature proves the requester has the private key for this DID
+    console.log("Verifying signature cryptographically...");
+    const isValid = await verifySignature(did, documentHash, signature);
+
+    if (!isValid) {
+      console.error(
+        `Signature verification FAILED for DID: ${did}. Possible malicious upload attempt.`
+      );
+      res.status(403).json({
+        error: "Forbidden",
+        message:
+          "Signature verification failed. The signature is not valid for this document hash and DID. Only the private key holder can anchor documents.",
+      });
+      return;
+    }
+
+    console.log(
+      "✓ Signature verified successfully - cryptographic proof of private key ownership confirmed"
+    );
+
+    // Step 4: Verify that the DID belongs to the authenticated organization
+    // This ensures the API key matches the DID being used
     const fullOrg = await prisma.organization.findUnique({
-      where: { id: authenticatedOrg.id },
+      where: { did: did },
       select: { id: true, name: true, did: true },
     });
 
     if (!fullOrg || !fullOrg.did) {
+      console.error(
+        `DID ${did} not found in database. Possible unauthorized DID usage.`
+      );
       res.status(403).json({
         error: "Forbidden",
         message:
-          "Your organization does not have a DID registered. Please complete signup first.",
+          "The provided DID is not registered in our system. Please complete signup first.",
       });
       return;
     }
 
-    if (fullOrg.did !== did) {
+    // Verify the authenticated organization matches the DID owner
+    if (fullOrg.id !== authenticatedOrg.id) {
+      console.error(
+        `API key organization (${authenticatedOrg.id}) does not match DID owner (${fullOrg.id}). Unauthorized access attempt.`
+      );
       res.status(403).json({
         error: "Forbidden",
         message:
-          "The provided DID does not belong to your organization. Please use your organization's DID.",
+          "The provided DID does not belong to your organization. You can only anchor documents with your organization's DID.",
       });
       return;
     }
 
-    // Verify the signature before proceeding
-    // This ensures the private key holder signed the document
-    console.log("Verifying signature...");
-    const isValid = await verifySignature(did, documentHash, signature);
-
-    if (!isValid) {
+    // Verify the authenticated organization's DID matches the provided DID
+    if (authenticatedOrg.did !== did) {
+      console.error(
+        `Authenticated org DID (${authenticatedOrg.did}) does not match provided DID (${did}).`
+      );
       res.status(403).json({
         error: "Forbidden",
         message:
-          "Signature verification failed. The signature is not valid for this document hash and DID.",
+          "The provided DID does not match your authenticated organization's DID.",
       });
       return;
     }
 
     console.log(
-      "Signature verified successfully - document signed with organization's private key"
-    );
-    console.log(
-      `Document anchored by registered organization: ${fullOrg.name}`
+      `✓ DID ownership verified - ${fullOrg.name} (${fullOrg.id}) owns DID: ${did}`
     );
 
     // Check if document has already been anchored

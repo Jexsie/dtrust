@@ -23,6 +23,7 @@ interface VerificationResultProps {
       did: string;
       signature: string;
       consensusTimestamp: string;
+      organizationName?: string;
     };
   } | null;
   isLightTheme: boolean;
@@ -84,26 +85,32 @@ export default function VerificationResult({
                   <h3 className="text-2xl font-bold text-[#00ffff] dark:text-[#22c55e] uppercase tracking-wider">
                     {result.status === "VERIFIED_ON_CHAIN"
                       ? result.isTrustedIssuer
-                        ? "✅ VERIFIED & TRUSTED"
-                        : "✅ VERIFIED (ISSUER UNKNOWN)"
+                        ? "VERIFIED & TRUSTED"
+                        : " VERIFIED"
                       : "VERIFIED!"}
                   </h3>
                   {result.status === "VERIFIED_ON_CHAIN" && (
                     <div className="mt-2">
                       {result.isTrustedIssuer ? (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-[#22c55e]/20 text-[#22c55e] border border-[#22c55e]/50">
-                          ✅ Verified & Trusted
+                          Verified & Trusted
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500/20 text-yellow-500 border border-yellow-500/50">
-                          ⚠️ Verified (Issuer Unknown)
-                        </span>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-yellow-500/20 text-yellow-500 border border-yellow-500/50"></span>
                       )}
                     </div>
                   )}
-                  {result.proof?.did && (
+                  {result.proof?.organizationName && (
                     <p className="mt-2 text-[#e0e0e0] dark:text-[#1e293b]">
                       <strong>Issuer:</strong>{" "}
+                      <span className="font-semibold text-[#00ffff] dark:text-[#22c55e]">
+                        {result.proof.organizationName}
+                      </span>
+                    </p>
+                  )}
+                  {result.proof?.did && (
+                    <p className="mt-2 text-[#e0e0e0] dark:text-[#1e293b] text-xs">
+                      <strong>DID:</strong>{" "}
                       <span className="font-['Share_Tech_Mono'] text-[#00ffff] dark:text-[#22c55e]">
                         {result.proof.did}
                       </span>
@@ -125,22 +132,20 @@ export default function VerificationResult({
                       </span>
                     </p>
                   )}
-                  <a
-                    className="inline-block mt-4 text-sm font-semibold text-[#00ffff] dark:text-primary hover:underline hover:shadow-neon-glow-blue transition-shadow"
-                    href={`https://hashscan.io/${
-                      result.proof?.consensusTimestamp ? "mainnet" : "testnet"
-                    }/transaction/${
-                      result.proof?.consensusTimestamp || result.transactionId
-                    }`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    VIEW ON HASHSCAN{" "}
-                    <ArrowRight
-                      className="inline align-middle ml-1"
-                      size={16}
-                    />
-                  </a>
+                  {result.proof?.consensusTimestamp && (
+                    <a
+                      className="inline-block mt-4 text-sm font-semibold text-[#00ffff] dark:text-primary hover:underline hover:shadow-neon-glow-blue transition-shadow"
+                      href={`https://hashscan.io/testnet/transaction/${result.proof.consensusTimestamp}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      VIEW ON HASHSCAN{" "}
+                      <ArrowRight
+                        className="inline align-middle ml-1"
+                        size={16}
+                      />
+                    </a>
+                  )}
                 </div>
               </div>
             </motion.div>

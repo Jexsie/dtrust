@@ -4,6 +4,7 @@
  */
 
 import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
 import {
   calculateFileHash,
   getProofByHash,
@@ -12,6 +13,8 @@ import { findMessageByHash } from "../../services/mirror.service";
 import { verifySignature } from "../../services/did.service";
 import { isTrustedIssuer } from "../../services/registry.service";
 import config from "../../config";
+
+const prisma = new PrismaClient();
 
 /**
  * Verifies a document against proofs on the Hedera network
@@ -129,6 +132,26 @@ export async function verifyDocument(
 
     console.log("Document verified on-chain - signature valid");
 
+    // Look up the organization by DID to get the organization name
+    let organizationName: string | null = null;
+    try {
+      const organization = await prisma.organization.findUnique({
+        where: { did: proof.issuerDid },
+        select: { name: true },
+      });
+      if (organization) {
+        organizationName = organization.name;
+        console.log(
+          `Found organization: ${organizationName} for DID: ${proof.issuerDid}`
+        );
+      } else {
+        console.log(`No organization found for DID: ${proof.issuerDid}`);
+      }
+    } catch (orgError) {
+      console.error("Error looking up organization:", orgError);
+      // Don't fail verification if org lookup fails
+    }
+
     // Check if the issuer is in the trusted registry
     let isTrusted = false;
     try {
@@ -155,6 +178,7 @@ export async function verifyDocument(
         did: proof.issuerDid,
         signature: messageContent.signature,
         consensusTimestamp: proof.consensusTimestamp,
+        organizationName: organizationName,
       },
       isTrustedIssuer: isTrusted,
     });

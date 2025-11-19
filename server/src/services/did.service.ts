@@ -7,6 +7,7 @@
 import { PublicKey } from "@hashgraph/sdk";
 import { HederaClientService } from "@hiero-did-sdk/client";
 import { resolveDID } from "@hiero-did-sdk/resolver";
+import { KeysUtility } from "@hiero-did-sdk/core";
 import config from "../config";
 
 /**
@@ -61,45 +62,146 @@ function getClientService(): HederaClientService {
   return clientServiceInstance;
 }
 
+/**
+ * Verifies a cryptographic signature against a document hash using a DID's public key
+ *
+ * This is a CRITICAL security function that prevents malicious uploads.
+ * It cryptographically proves that the signer has the private key for the given DID.
+ *
+ * @param did - The Hedera DID to verify against
+ * @param documentHashHex - The document hash in hex format
+ * @param signatureHex - The signature in hex format
+ * @returns true if signature is valid, false otherwise
+ */
 export async function verifySignature(
   did: string,
   documentHashHex: string,
   signatureHex: string
 ): Promise<boolean> {
   try {
-    // 1. Resolve the DID to find the Public Key
-    // (This is the "Lookup" step)
+    // Validate inputs
+    if (!did || !documentHashHex || !signatureHex) {
+      console.error("Signature verification: Missing required parameters");
+      return false;
+    }
+
+    if (!did.startsWith("did:hedera:")) {
+      console.error(`Signature verification: Invalid DID format: ${did}`);
+      return false;
+    }
+
+    // 1. Resolve the DID to find the Public Key from the Hedera network
+    // This ensures we're using the authoritative public key, not a cached one
+    console.log(`Resolving DID to get public key: ${did}`);
     const didDocument = await resolveDID(did);
 
-    if (!didDocument || !didDocument.verificationMethod) {
-      console.error("DID Document invalid or missing verification methods");
+    if (!didDocument) {
+      console.error(`Signature verification: Failed to resolve DID: ${did}`);
+      return false;
+    }
+
+    if (
+      !didDocument.verificationMethod ||
+      didDocument.verificationMethod.length === 0
+    ) {
+      console.error(
+        `Signature verification: DID document has no verification methods: ${did}`
+      );
       return false;
     }
 
     // 2. Extract the Public Key string from the DID Document
-    // Hiero DIDs usually use 'publicKeyMultibase' (starts with 'z')
-    const method = didDocument.verificationMethod[1];
-    const publicKeyString =
-      method.type === "Ed25519VerificationKey2020"
-        ? method.publicKeyMultibase
-        : "";
+    // Hiero DIDs use Ed25519VerificationKey2020 with publicKeyMultibase
+    // Try to find the Ed25519 verification method
+    let publicKeyString: string | undefined;
 
-    if (!publicKeyString) {
-      throw new Error("No public key found in DID Document");
+    for (const method of didDocument.verificationMethod) {
+      if (
+        method.type === "Ed25519VerificationKey2020" &&
+        method.publicKeyMultibase
+      ) {
+        publicKeyString = method.publicKeyMultibase;
+        break;
+      }
     }
 
-    // 3. Convert the Public Key string into a Hedera PublicKey object
-    const publicKey = PublicKey.fromString(publicKeyString);
+    if (!publicKeyString) {
+      console.error(
+        `Signature verification: No Ed25519 public key found in DID document for: ${did}`
+      );
+      return false;
+    }
+    console.log(`Public key string (multibase): ${publicKeyString}`);
+
+    // 3. Convert the multibase public key string to Hedera PublicKey object
+    // The publicKeyMultibase is in base58btc format (starts with 'z')
+    // We need to use KeysUtility to convert it back to a Hedera PublicKey
+    let publicKey: PublicKey;
+    try {
+      // Use KeysUtility to convert from multibase format
+      const keysUtility = KeysUtility.fromMultibase(publicKeyString);
+      // Get the Hedera PublicKey from the utility
+      publicKey = keysUtility.toPublicKey();
+      console.log(`✓ Successfully converted multibase to Hedera PublicKey`);
+    } catch (error) {
+      console.error(
+        `Signature verification: Failed to convert multibase public key to Hedera PublicKey: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+      return false;
+    }
 
     // 4. Prepare the data (Convert Hex strings to Uint8Array bytes)
-    const hashBytes = Buffer.from(documentHashHex, "hex");
-    const signatureBytes = Buffer.from(signatureHex, "hex");
+    let hashBytes: Buffer;
+    let signatureBytes: Buffer;
 
-    // 5. VERIFY (The Magic Moment)
-    // We don't "decrypt" manually. We just call .verify()
-    return publicKey.verify(hashBytes, signatureBytes);
+    try {
+      hashBytes = Buffer.from(documentHashHex, "hex");
+      signatureBytes = Buffer.from(signatureHex, "hex");
+    } catch (error) {
+      console.error(
+        `Signature verification: Failed to convert hex strings to bytes: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+      return false;
+    }
+
+    // Validate buffer lengths
+    if (hashBytes.length !== 32) {
+      console.error(
+        `Signature verification: Invalid hash length: ${hashBytes.length} (expected 32 for SHA-256)`
+      );
+      return false;
+    }
+
+    if (signatureBytes.length !== 64) {
+      console.error(
+        `Signature verification: Invalid signature length: ${signatureBytes.length} (expected 64 for Ed25519)`
+      );
+      return false;
+    }
+
+    // 5. CRITICAL: VERIFY THE SIGNATURE
+    // This cryptographically proves the signer has the private key
+    const isValid = publicKey.verify(hashBytes, signatureBytes);
+
+    if (isValid) {
+      console.log(`✓ Signature verification SUCCESS for DID: ${did}`);
+    } else {
+      console.error(
+        `✗ Signature verification FAILED for DID: ${did} - Signature does not match hash`
+      );
+    }
+
+    return isValid;
   } catch (error) {
-    console.error("Verification failed:", error);
+    console.error(
+      `Signature verification: Unexpected error: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
     return false;
   }
 }

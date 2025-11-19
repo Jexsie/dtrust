@@ -13,8 +13,11 @@ const router: Router = Router();
  * POST /api/v1/anchor
  * Anchors a document to the Hedera network
  *
- * Authentication: API key required (X-API-Key header)
- * The signature cryptographically proves ownership of the DID
+ * Security: Multi-layer protection against malicious uploads
+ * 1. API key authentication (Authorization: Bearer <API_KEY>)
+ * 2. Cryptographic signature verification (proves private key ownership)
+ * 3. DID ownership verification (ensures API key matches DID)
+ *
  * Content-Type: application/json
  * Body: { documentHash: string, did: string, signature: string }
  */
