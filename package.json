@@ -8,10 +8,12 @@
     "dev:issuer": "pnpm --filter issuer-portal dev",
     "dev:verifier": "pnpm --filter verifier-portal dev",
     "dev:server": "pnpm --filter server dev",
+    "dev:extension": "pnpm --filter verifier-extension dev",
     "build": "pnpm -r build",
     "build:issuer": "pnpm --filter issuer-portal build",
     "build:verifier": "pnpm --filter verifier-portal build",
     "build:server": "pnpm --filter server build",
+    "build:extension": "pnpm --filter verifier-extension build",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean && rm -rf node_modules"
   },
@@ -46,6 +48,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/chrome": "^0.1.30",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/multer": "^1.4.11",
@@ -58,6 +61,7 @@
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vite": "^7.2.2"
   }
 }
