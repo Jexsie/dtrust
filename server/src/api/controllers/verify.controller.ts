@@ -5,16 +5,20 @@
 
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import {
-  calculateFileHash,
-  getProofByHash,
-} from "../../services/document.service";
+import { getProofByHash } from "../../services/document.service";
 import { findMessageByHash } from "../../services/mirror.service";
 import { verifySignature } from "../../services/did.service";
 import { isTrustedIssuer } from "../../services/registry.service";
 import config from "../../config";
 
 const prisma = new PrismaClient();
+
+/**
+ * Request body interface for verify endpoint
+ */
+interface VerifyRequest {
+  documentHash: string;
+}
 
 /**
  * Verifies a document against proofs on the Hedera network
@@ -24,7 +28,7 @@ const prisma = new PrismaClient();
  * 2. Cryptographic verification (decentralized trust)
  *
  * Process:
- * 1. Calculates the SHA-256 hash of the uploaded document
+ * 1. Receives the document hash (calculated client-side for privacy)
  * 2. Queries the database for the proof (fast, indexed lookup)
  * 3. If found, performs decentralized verification:
  *    - Resolves DID to get public key from network
@@ -32,9 +36,12 @@ const prisma = new PrismaClient();
  *    - Checks trusted issuer registry
  * 4. Returns verification status and proof details
  *
- * Note: This endpoint is public and does not require authentication
+ * Note:
+ * - This endpoint is public and does not require authentication
+ * - The file is never uploaded - only the hash is sent from the client
+ * - This ensures privacy and reduces server load
  *
- * @param req - Express request with file upload
+ * @param req - Express request with JSON body containing documentHash
  * @param res - Express response object
  */
 export async function verifyDocument(
@@ -42,19 +49,32 @@ export async function verifyDocument(
   res: Response
 ): Promise<void> {
   try {
-    if (!req.file) {
+    const body = req.body as VerifyRequest;
+
+    // Validate request body
+    if (!body.documentHash || typeof body.documentHash !== "string") {
       res.status(400).json({
         error: "Bad Request",
         message:
-          'No document file provided. Please upload a file using the "document" field.',
+          'Missing or invalid documentHash. Please provide a SHA-256 hash in the request body: { "documentHash": "..." }',
+      });
+      return;
+    }
+
+    const documentHash = body.documentHash.trim();
+
+    // Validate hash format (SHA-256 produces 64 hex characters)
+    if (!/^[a-f0-9]{64}$/i.test(documentHash)) {
+      res.status(400).json({
+        error: "Bad Request",
+        message:
+          "Invalid hash format. Expected a 64-character hexadecimal SHA-256 hash.",
       });
       return;
     }
 
     console.log("Verifying document...");
-
-    const documentHash = calculateFileHash(req.file.buffer);
-    console.log(`Document hash calculated: ${documentHash}`);
+    console.log(`Document hash received: ${documentHash}`);
 
     // Step 1: Fast database lookup (indexed, sub-second)
     // This is the scalable approach - database is the index for HCS topic

@@ -95,13 +95,20 @@ export default function CommandCenterPage() {
     setResult(null);
 
     try {
-      // Create FormData to send the file
-      const formData = new FormData();
-      formData.append("document", file);
+      // Calculate hash on client side (file never leaves the browser)
+      console.log("Calculating file hash on client...");
+      const documentHash = await hashFile(file);
+      console.log(`File hash calculated: ${documentHash}`);
 
+      // Send only the hash to the server (not the file)
       const response = await fetch("http://localhost:3001/api/v1/verify", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          documentHash: documentHash,
+        }),
       });
 
       if (!response.ok) {

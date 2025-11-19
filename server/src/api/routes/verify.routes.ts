@@ -4,7 +4,6 @@
  */
 
 import { Router } from "express";
-import { uploadDocument } from "../middleware/fileupload.middleware";
 import { verifyDocument } from "../controllers/verify.controller";
 
 const router: Router = Router();
@@ -14,9 +13,12 @@ const router: Router = Router();
  * Verifies a document against the Hedera network
  *
  * Authentication: Not required (public endpoint)
- * Content-Type: multipart/form-data
- * Field: document (file)
+ * Content-Type: application/json
+ * Body: { documentHash: string }
+ *
+ * Note: The hash is calculated on the client side for privacy.
+ * The file is never uploaded to the server.
  */
-router.post("/", uploadDocument, verifyDocument);
+router.post("/", verifyDocument);
 
 export default router;
