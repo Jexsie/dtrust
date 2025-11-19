@@ -6,7 +6,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import crypto from "crypto";
-import { createDidFromPublicKey } from "../../services/did.service";
 
 const prisma = new PrismaClient();
 
@@ -31,15 +30,7 @@ interface SignupRequest {
   city?: string;
   country?: string;
   description?: string;
-  did?: string; // DID from non-custodial registration (new flow)
-  publicKey?: string; // Public key for legacy flow (deprecated)
-}
-
-/**
- * Login request interface
- */
-interface LoginRequest {
-  apiKey: string;
+  did?: string;
 }
 
 /**
@@ -62,10 +53,8 @@ export async function signup(req: Request, res: Response): Promise<void> {
       country,
       description,
       did,
-      publicKey, // Legacy support
     }: SignupRequest = req.body;
 
-    // Validate required fields
     if (!name || typeof name !== "string") {
       res.status(400).json({
         error: "Bad Request",
@@ -90,12 +79,10 @@ export async function signup(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // Validate that either DID (new flow) or publicKey (legacy) is provided
-    if (!did && !publicKey) {
+    if (!did) {
       res.status(400).json({
         error: "Bad Request",
-        message:
-          "Either DID (from non-custodial registration) or publicKey is required",
+        message: "DID is required",
       });
       return;
     }
@@ -128,20 +115,22 @@ export async function signup(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // Check if organization already exists
+    // Check if organization with this DID already exists
+    // DID is the primary identifier for organizations
     const existingOrg = await prisma.organization.findUnique({
-      where: { name: trimmedName },
+      where: { did: did },
     });
 
     if (existingOrg) {
       res.status(409).json({
         error: "Conflict",
-        message: "Organization name already exists",
+        message: "An organization with this DID already exists",
       });
       return;
     }
 
-    // Step 1: Create organization with all provided fields
+    // Create organization with DID as the primary identifier
+    // DID is required and unique - it identifies the organization
     const organization = await prisma.organization.create({
       data: {
         name: trimmedName,
@@ -153,7 +142,8 @@ export async function signup(req: Request, res: Response): Promise<void> {
         city: city?.trim() || null,
         country: country?.trim() || null,
         description: description?.trim() || null,
-      } as any, // Type assertion needed until Prisma client is regenerated
+        did: did, // DID is the primary identifier
+      } as any,
     });
 
     // Step 2: Generate and create API key
@@ -162,59 +152,23 @@ export async function signup(req: Request, res: Response): Promise<void> {
     await prisma.apiKey.create({
       data: {
         key: apiKeyValue,
-        organizationId: organization.id,
-      },
-    });
-
-    // Step 3: Handle DID creation
-    let didString: string;
-
-    if (did) {
-      // New flow: DID was already created via non-custodial registration
-      didString = did;
-      console.log(
-        `Using pre-created DID for organization: ${organization.name} (${organization.id})`
-      );
-    } else if (publicKey) {
-      // Legacy flow: Create DID from public key (server pays)
-      console.log(
-        `Creating DID from public key for organization: ${organization.name} (${organization.id})`
-      );
-      didString = await createDidFromPublicKey(publicKey);
-    } else {
-      throw new Error("Either DID or publicKey must be provided");
-    }
-
-    // Step 4: Save DID to organization (no private key stored)
-    const updatedOrganization = await prisma.organization.update({
-      where: { id: organization.id },
-      data: {
-        did: didString,
-      },
-      select: {
-        id: true,
-        name: true,
-        did: true,
+        organizationId: organization.id, // Use organization.id, not organization.did
       },
     });
 
     console.log(
-      `New organization created: ${organization.name} (${organization.id}) with DID: ${didString}`
+      `New organization created: ${organization.name} (${organization.id}) with DID: ${did}`
     );
 
     res.status(201).json({
       message: "Organization created successfully",
       apiKey: apiKeyValue,
-      did: didString,
-      organization: {
-        id: updatedOrganization.id,
-        name: updatedOrganization.name,
-      },
+      did: did,
+      organization,
     });
   } catch (error) {
     console.error("Error in signup:", error);
 
-    // Check if it's a DID creation error
     if (error instanceof Error && error.message.includes("DID")) {
       res.status(500).json({
         error: "Internal Server Error",
@@ -228,73 +182,6 @@ export async function signup(req: Request, res: Response): Promise<void> {
       error: "Internal Server Error",
       message: "Failed to create organization",
       details: error instanceof Error ? error.message : "Unknown error",
-    });
-  }
-}
-
-/**
- * POST /api/v1/auth/login
- * Validates an API key and returns organization information
- *
- * Body: { apiKey: string }
- * Returns: { organization: { id, name, did } }
- */
-export async function login(req: Request, res: Response): Promise<void> {
-  try {
-    const { apiKey }: LoginRequest = req.body;
-
-    if (!apiKey || typeof apiKey !== "string") {
-      res.status(400).json({
-        error: "Bad Request",
-        message: "API key is required",
-      });
-      return;
-    }
-
-    const apiKeyRecord = await prisma.apiKey.findUnique({
-      where: { key: apiKey },
-      include: {
-        organization: {
-          select: {
-            id: true,
-            name: true,
-            did: true,
-          },
-        },
-      },
-    });
-
-    if (!apiKeyRecord) {
-      res.status(401).json({
-        error: "Unauthorized",
-        message: "Invalid API key",
-      });
-      return;
-    }
-
-    if (apiKeyRecord.expiresAt && apiKeyRecord.expiresAt < new Date()) {
-      res.status(401).json({
-        error: "Unauthorized",
-        message: "API key has expired",
-      });
-      return;
-    }
-
-    // Update lastUsedAt
-    await prisma.apiKey.update({
-      where: { id: apiKeyRecord.id },
-      data: { lastUsedAt: new Date() },
-    });
-
-    res.status(200).json({
-      message: "Login successful",
-      organization: apiKeyRecord.organization,
-    });
-  } catch (error) {
-    console.error("Error in login:", error);
-    res.status(500).json({
-      error: "Internal Server Error",
-      message: "Failed to authenticate",
     });
   }
 }

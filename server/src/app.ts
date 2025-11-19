@@ -8,7 +8,6 @@ import cors from "cors";
 import config from "./config";
 import anchorRoutes from "./api/routes/anchor.routes";
 import verifyRoutes from "./api/routes/verify.routes";
-import organizationRoutes from "./api/routes/organization.routes";
 import authRoutes from "./api/routes/auth.routes";
 import didRoutes from "./api/routes/did.routes";
 
@@ -70,9 +69,6 @@ function createApp(): Application {
 
   // Mount verify routes
   app.use("/api/v1/verify", verifyRoutes);
-
-  // Mount organization routes
-  app.use("/api/v1/organization", organizationRoutes);
 
   // ==========================================
   // Root Endpoint

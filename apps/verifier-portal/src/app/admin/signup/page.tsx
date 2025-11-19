@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { PrivateKey } from "@hashgraph/sdk";
 import { KeysUtility } from "@hiero-did-sdk/core";
 import { motion, AnimatePresence } from "framer-motion";
-import { s } from "framer-motion/client";
 
 interface SignupCredentials {
   apiKey: string;
@@ -75,8 +74,6 @@ export default function AdminSignupPage() {
 
       const { serialisedPayload, state } = await requestResponse.json();
 
-      // Step 4: Sign the payload with client's private key
-      // serialisedPayload comes as hex string from server, convert to Uint8Array
       const payloadBytes = new Uint8Array(
         serialisedPayload
           .match(/.{1,2}/g)!
@@ -84,12 +81,10 @@ export default function AdminSignupPage() {
       );
       const signatureBytes = newKey.sign(payloadBytes);
 
-      // Convert signature to hex string for transmission
       const signatureHex = Array.from(signatureBytes)
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      // Step 5: Submit signed creation request to server
       const submitResponse = await fetch(
         `${apiUrl}/api/v1/did/submit-creation`,
         {
@@ -112,9 +107,8 @@ export default function AdminSignupPage() {
         );
       }
 
-      const { did, didDocument } = await submitResponse.json();
+      const { did } = await submitResponse.json();
 
-      // Step 6: Create organization with the DID
       const signupResponse = await fetch(`${apiUrl}/api/v1/auth/signup`, {
         method: "POST",
         headers: {
@@ -130,7 +124,7 @@ export default function AdminSignupPage() {
           city: formData.city.trim() || undefined,
           country: formData.country.trim() || undefined,
           description: formData.description.trim() || undefined,
-          did, // Pass the DID instead of publicKey
+          did,
         }),
       });
 
@@ -143,7 +137,6 @@ export default function AdminSignupPage() {
 
       const signupData = await signupResponse.json();
 
-      // Step 7: Store credentials (private key was generated client-side)
       setCredentials({
         apiKey: signupData.apiKey,
         did: did,
@@ -151,7 +144,6 @@ export default function AdminSignupPage() {
         organization: signupData.organization,
       });
 
-      // Clear form
       setFormData({
         name: "",
         email: "",

@@ -11,7 +11,7 @@ datasource db {
 
 model Organization {
   id              String         @id @default(cuid())
-  name            String         @unique
+  name            String         // Name is not unique - DID is the identifier
   email           String
   contactName     String
   contactPhone    String?
@@ -20,7 +20,7 @@ model Organization {
   city            String?
   country         String?
   description     String?
-  did             String?        @unique
+  did             String         @unique // DID is required and unique - primary identifier
   didPrivateKey   String?
   isVerified      Boolean       @default(false)
   createdAt       DateTime       @default(now())

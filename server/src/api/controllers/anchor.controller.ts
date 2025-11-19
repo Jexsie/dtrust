@@ -3,7 +3,7 @@
  * Handles document anchoring to the Hedera network
  */
 
-import { Request, Response } from "express";
+import { Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import {
   findProofByHash,
@@ -11,6 +11,7 @@ import {
 } from "../../services/document.service";
 import { submitHashToHCS } from "../../services/hedera.service";
 import { verifySignature } from "../../services/did.service";
+import { AuthenticatedRequest } from "../middleware/auth.middleware";
 
 const prisma = new PrismaClient();
 
@@ -27,21 +28,22 @@ interface AnchorRequest {
  * Anchors a document to the Hedera Consensus Service (HCS)
  *
  * This endpoint:
- * 1. Accepts documentHash, did, and signature in JSON
- * 2. Verifies the signature using the DID's public key (signature is the authentication)
- * 3. Looks up the organization by DID (for billing/audit purposes)
- * 4. Checks if the document has already been anchored
- * 5. If not, submits the proof (hash, did, signature) to HCS as JSON
- * 6. Saves the proof to the database
+ * 1. Requires API key authentication (validates organization)
+ * 2. Accepts documentHash, did, and signature in JSON
+ * 3. Verifies the signature using the DID's public key
+ * 4. Ensures the DID belongs to the authenticated organization
+ * 5. Checks if the document has already been anchored
+ * 6. If not, submits the proof (hash, did, signature) to HCS as JSON
+ * 7. Saves the proof to the database
  *
- * Authentication: Signature-based (no API key required)
+ * Authentication: API key required (X-API-Key header)
  * The signature cryptographically proves ownership of the DID
  *
- * @param req - Express request with JSON body
+ * @param req - Authenticated Express request with JSON body
  * @param res - Express response object
  */
 export async function anchorDocument(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response
 ): Promise<void> {
   try {
@@ -59,11 +61,50 @@ export async function anchorDocument(
 
     const { documentHash, did, signature } = body;
 
+    // Get the authenticated organization from the API key
+    if (!req.organization) {
+      res.status(401).json({
+        error: "Unauthorized",
+        message: "Organization information not found",
+      });
+      return;
+    }
+
+    const authenticatedOrg = req.organization;
+
+    console.log(
+      `Anchoring document for organization: ${authenticatedOrg.name} (${authenticatedOrg.id})`
+    );
     console.log(`Anchoring document with DID: ${did}`);
     console.log(`Document hash: ${documentHash}`);
 
+    // Verify that the DID belongs to the authenticated organization
+    // Fetch the full organization record to check the DID
+    const fullOrg = await prisma.organization.findUnique({
+      where: { id: authenticatedOrg.id },
+      select: { id: true, name: true, did: true },
+    });
+
+    if (!fullOrg || !fullOrg.did) {
+      res.status(403).json({
+        error: "Forbidden",
+        message:
+          "Your organization does not have a DID registered. Please complete signup first.",
+      });
+      return;
+    }
+
+    if (fullOrg.did !== did) {
+      res.status(403).json({
+        error: "Forbidden",
+        message:
+          "The provided DID does not belong to your organization. Please use your organization's DID.",
+      });
+      return;
+    }
+
     // Verify the signature before proceeding
-    // This is the authentication - if signature is valid, we know the sender owns the DID
+    // This ensures the private key holder signed the document
     console.log("Verifying signature...");
     const isValid = await verifySignature(did, documentHash, signature);
 
@@ -77,23 +118,11 @@ export async function anchorDocument(
     }
 
     console.log(
-      "Signature verified successfully - sender authenticated via cryptographic proof"
+      "Signature verified successfully - document signed with organization's private key"
     );
-
-    // Look up organization by DID (for billing/audit purposes)
-    // This is optional - the signature already proves identity
-    const organization = await prisma.organization.findUnique({
-      where: { did: did },
-      select: { id: true, name: true },
-    });
-
-    if (organization) {
-      console.log(
-        `Document anchored by registered organization: ${organization.name}`
-      );
-    } else {
-      console.log(`Document anchored by DID not in our registry: ${did}`);
-    }
+    console.log(
+      `Document anchored by registered organization: ${fullOrg.name}`
+    );
 
     // Check if document has already been anchored
     const existingProof = await findProofByHash(documentHash);

@@ -16,8 +16,10 @@ export async function POST(request: Request) {
     }
 
     // Get configuration from environment variables
+    // These should be set from the credentials provided during signup
     const didPrivateKey = process.env.DTRUST_DID_PRIVATE_KEY;
     const did = process.env.DTRUST_DID;
+    const apiKey = process.env.DTRUST_API_KEY;
     const apiUrl = process.env.DTRUST_API_URL || "http://localhost:3001";
 
     if (!didPrivateKey) {
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
         {
           error: "Server configuration error",
           message:
-            "DID private key not configured. Please set DTRUST_DID_PRIVATE_KEY in .env.local",
+            "DID private key not configured. Please set DTRUST_DID_PRIVATE_KEY in .env.local (from signup credentials)",
         },
         { status: 500 }
       );
@@ -37,7 +39,20 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: "Server configuration error",
-          message: "DID not configured. Please set DTRUST_DID in .env.local",
+          message:
+            "DID not configured. Please set DTRUST_DID in .env.local (from signup credentials)",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!apiKey) {
+      console.error("DTRUST_API_KEY environment variable is not set");
+      return NextResponse.json(
+        {
+          error: "Server configuration error",
+          message:
+            "API key not configured. Please set DTRUST_API_KEY in .env.local (from signup credentials)",
         },
         { status: 500 }
       );
@@ -47,21 +62,23 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const hash = Crypto.sha256(new Uint8Array(arrayBuffer));
 
-    // Sign the hash using the local private key
+    // Sign the hash using the DID private key from signup
     // The private key is stored in .env.local and never leaves this server
+    // The private key format from signup is hex (from PrivateKey.toStringRaw())
     const hashBuffer = Buffer.from(hash, "hex");
 
-    // Use Hedera SDK to sign the hash
+    // Reconstruct the private key from hex string
+    // PrivateKey.fromString() accepts the raw hex format from toStringRaw()
     const privateKey = PrivateKey.fromString(didPrivateKey);
     const signatureBytes = privateKey.sign(hashBuffer);
     const signature = Buffer.from(signatureBytes).toString("hex");
 
-    // Call the backend anchor API with signature
-    // No API key needed - signature is the authentication
+    // Call the backend anchor API with API key authentication
     const response = await fetch(`${apiUrl}/api/v1/anchor`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-API-Key": apiKey, // API key authentication
       },
       body: JSON.stringify({
         documentHash: hash,

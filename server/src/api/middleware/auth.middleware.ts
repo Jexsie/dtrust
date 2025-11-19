@@ -15,6 +15,7 @@ export interface AuthenticatedRequest extends Request {
   organization?: {
     id: string;
     name: string;
+    did: string; // DID is the primary identifier
   };
 }
 
@@ -70,6 +71,7 @@ export async function apiKeyAuth(
           select: {
             id: true,
             name: true,
+            did: true, // Include DID as it's the primary identifier
           },
         },
       },
@@ -91,6 +93,16 @@ export async function apiKeyAuth(
       return;
     }
 
+    // Ensure organization has a DID (required for all organizations)
+    if (!apiKeyRecord.organization.did) {
+      res.status(403).json({
+        error: "Forbidden",
+        message:
+          "Organization does not have a DID registered. Please complete signup.",
+      });
+      return;
+    }
+
     // Update the lastUsedAt timestamp (fire and forget - don't wait for it)
     prisma.apiKey
       .update({
@@ -101,7 +113,11 @@ export async function apiKeyAuth(
         console.error("Error updating API key lastUsedAt:", error);
       });
 
-    req.organization = apiKeyRecord.organization;
+    req.organization = {
+      id: apiKeyRecord.organization.id,
+      name: apiKeyRecord.organization.name,
+      did: apiKeyRecord.organization.did, // DID is guaranteed to exist at this point
+    };
 
     next();
   } catch (error) {

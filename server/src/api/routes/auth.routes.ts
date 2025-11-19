@@ -4,7 +4,7 @@
  */
 
 import { Router } from "express";
-import { signup, login } from "../controllers/auth.controller";
+import { signup } from "../controllers/auth.controller";
 
 const router: Router = Router();
 
@@ -16,14 +16,5 @@ const router: Router = Router();
  * Returns: { apiKey: string, organization: { id, name } }
  */
 router.post("/signup", signup);
-
-/**
- * POST /api/v1/auth/login
- * Validates an API key and returns organization information
- *
- * Body: { apiKey: string }
- * Returns: { organization: { id, name, did } }
- */
-router.post("/login", login);
 
 export default router;
