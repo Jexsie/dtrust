@@ -29,15 +29,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      "px-6 py-3 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+      "px-6 py-3 rounded-lg font-semibold transition-transform duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-98";
 
     const variantStyles = {
       default:
-        "bg-[#059669] text-white hover:bg-[#047857] focus:ring-[#059669] shadow-sm",
+        "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500 shadow-sm",
       destructive:
-        "bg-[#e11d48] text-white hover:bg-[#be123c] focus:ring-[#e11d48] shadow-sm",
+        "bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500 shadow-sm",
       outline:
-        "bg-transparent border-2 border-[#059669] text-[#059669] hover:bg-[#059669] hover:text-white focus:ring-[#059669]",
+        "bg-transparent border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white focus:ring-emerald-500",
     };
 
     return (

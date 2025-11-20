@@ -4,20 +4,23 @@
  */
 
 import { Router } from "express";
-import { apiKeyAuth } from "../middleware/auth.middleware";
-import { uploadDocument } from "../middleware/fileupload.middleware";
 import { anchorDocument } from "../controllers/anchor.controller";
+import { apiKeyAuth } from "../middleware/auth.middleware";
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * POST /api/v1/anchor
  * Anchors a document to the Hedera network
  *
- * Authentication: Required (API Key)
- * Content-Type: multipart/form-data
- * Field: document (file)
+ * Security: Multi-layer protection against malicious uploads
+ * 1. API key authentication (Authorization: Bearer <API_KEY>)
+ * 2. Cryptographic signature verification (proves private key ownership)
+ * 3. DID ownership verification (ensures API key matches DID)
+ *
+ * Content-Type: application/json
+ * Body: { documentHash: string, did: string, signature: string }
  */
-router.post("/", apiKeyAuth, uploadDocument, anchorDocument);
+router.post("/", apiKeyAuth, anchorDocument);
 
 export default router;

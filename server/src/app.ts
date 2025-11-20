@@ -4,8 +4,12 @@
  */
 
 import express, { Application, Request, Response, NextFunction } from "express";
+import cors from "cors";
+import config from "./config";
 import anchorRoutes from "./api/routes/anchor.routes";
 import verifyRoutes from "./api/routes/verify.routes";
+import authRoutes from "./api/routes/auth.routes";
+import didRoutes from "./api/routes/did.routes";
 
 /**
  * Creates and configures the Express application
@@ -17,6 +21,18 @@ function createApp(): Application {
   // ==========================================
   // Middleware Configuration
   // ==========================================
+
+  // CORS configuration - Allow requests from frontend applications
+  // Origins are configured via CORS_ORIGINS env variable (comma-separated)
+  // Defaults to localhost URLs for development
+  app.use(
+    cors({
+      origin: config.cors.origins,
+      credentials: true, // Allow cookies and authorization headers
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-API-Key"],
+    })
+  );
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -42,6 +58,12 @@ function createApp(): Application {
   // API Routes
   // ==========================================
 
+  // Mount auth routes (public - no authentication required)
+  app.use("/api/v1/auth", authRoutes);
+
+  // Mount DID routes (public - for non-custodial DID registration)
+  app.use("/api/v1/did", didRoutes);
+
   // Mount anchor routes
   app.use("/api/v1/anchor", anchorRoutes);
 
@@ -61,6 +83,10 @@ function createApp(): Application {
         health: "GET /health",
         anchor: "POST /api/v1/anchor (authenticated)",
         verify: "POST /api/v1/verify (public)",
+        organization: {
+          createDid: "POST /api/v1/organization/did (authenticated)",
+          getDid: "GET /api/v1/organization/did (authenticated)",
+        },
       },
     });
   });

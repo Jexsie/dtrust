@@ -17,10 +17,18 @@ import StatsGrid from "@/components/StatsGrid";
 import TransactionLogTable from "@/components/TransactionLogTable";
 
 interface VerificationResult {
-  verified: boolean;
+  status?: "VERIFIED_ON_CHAIN" | "NOT_VERIFIED" | "VERIFIED";
+  verified?: boolean; // Legacy field
   transactionId?: string;
   timestamp?: string;
   organization?: string;
+  isTrustedIssuer?: boolean;
+  proof?: {
+    hash: string;
+    did: string;
+    signature: string;
+    consensusTimestamp: string;
+  };
 }
 
 interface Transaction {
@@ -87,14 +95,20 @@ export default function CommandCenterPage() {
     setResult(null);
 
     try {
-      const hash = await hashFile(file);
+      // Calculate hash on client side (file never leaves the browser)
+      console.log("Calculating file hash on client...");
+      const documentHash = await hashFile(file);
+      console.log(`File hash calculated: ${documentHash}`);
 
+      // Send only the hash to the server (not the file)
       const response = await fetch("http://localhost:3001/api/v1/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ hash }),
+        body: JSON.stringify({
+          documentHash: documentHash,
+        }),
       });
 
       if (!response.ok) {
@@ -102,23 +116,33 @@ export default function CommandCenterPage() {
       }
 
       const data = await response.json();
+
+      // Handle new response format
+      const isVerified =
+        data.status === "VERIFIED_ON_CHAIN" || data.status === "VERIFIED";
+
       setResult({
-        verified: data.verified || false,
-        transactionId: data.transactionId,
-        timestamp: data.timestamp,
-        organization: data.organization,
+        status: data.status,
+        verified: isVerified,
+        transactionId: data.proof?.consensusTimestamp || data.transactionId,
+        timestamp: data.proof?.consensusTimestamp || data.timestamp,
+        organization: data.proof?.did,
+        isTrustedIssuer: data.isTrustedIssuer || false,
+        proof: data.proof,
       });
 
       const newTransaction: Transaction = {
         time: new Date().toLocaleTimeString("en-US", { hour12: false }),
-        transactionId: data.transactionId || `0.0.123456-${Date.now()}`,
-        status: data.verified ? "Verified" : "Failed",
+        transactionId:
+          data.proof?.consensusTimestamp || `0.0.123456-${Date.now()}`,
+        status: isVerified ? "Verified" : "Failed",
         fileName: file.name,
       };
       setTransactions((prev) => [newTransaction, ...prev.slice(0, 9)]);
     } catch (err) {
       console.error("Error processing file:", err);
       setResult({
+        status: "NOT_VERIFIED",
         verified: false,
         transactionId: undefined,
       });

@@ -1,12 +1,15 @@
 /**
  * File Hashing Utility
  *
- * Uses the Web Crypto API (SubtleCrypto) to calculate SHA-256 hashes
+ * Uses the Hiero DID SDK crypto utility to calculate SHA-256 hashes
  * of files entirely in the browser. Files are never sent to the server.
  */
 
+// @ts-expect-error: No type definitions for this package
+import { Crypto } from "@hiero-did-sdk/crypto";
+
 /**
- * Calculate the SHA-256 hash of a file
+ * Calculate the SHA-256 hash of a file using Hiero SDK crypto utility
  * @param file - The file to hash
  * @returns Promise resolving to the hex-encoded hash string
  */
@@ -18,14 +21,8 @@ export async function hashFile(file: File): Promise<string> {
       try {
         const arrayBuffer = event.target?.result as ArrayBuffer;
 
-        // Use SubtleCrypto to calculate SHA-256 hash
-        const hashBuffer = await crypto.subtle.digest("SHA-256", arrayBuffer);
-
-        // Convert ArrayBuffer to hex string
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("");
+        // Use Hiero SDK Crypto utility to calculate SHA-256 hash
+        const hashHex = Crypto.sha256(new Uint8Array(arrayBuffer));
 
         resolve(hashHex);
       } catch (error) {

@@ -31,6 +31,12 @@ async function startServer(): Promise<void> {
       console.log(`  GET  http://localhost:${config.port}/health`);
       console.log(`  POST http://localhost:${config.port}/api/v1/anchor`);
       console.log(`  POST http://localhost:${config.port}/api/v1/verify`);
+      console.log(
+        `  POST http://localhost:${config.port}/api/v1/organization/did`
+      );
+      console.log(
+        `  GET  http://localhost:${config.port}/api/v1/organization/did`
+      );
       console.log("=".repeat(50));
       console.log("");
     });

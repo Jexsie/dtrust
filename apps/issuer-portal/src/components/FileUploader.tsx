@@ -11,11 +11,16 @@
 
 import React, { useState, useCallback } from "react";
 import { hashFile, formatFileSize } from "@/lib/fileHasher";
-import { Button } from "./Button";
 import { FilePreviewModal } from "./FilePreviewModal";
 
 interface FileUploaderProps {
-  onSuccess?: (data: any) => void;
+  onSuccess?: (data: {
+    proof: {
+      documentHash: string;
+      hederaTransactionId: string;
+      consensusTimestamp: string;
+    };
+  }) => void;
   onError?: (error: string) => void;
 }
 
@@ -41,15 +46,41 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
+  const processFile = useCallback(
+    async (file: File) => {
+      setIsProcessing(true);
+      setError(null);
+      setSuccess(null);
+      setSelectedFile(file);
 
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      await processFile(files[0]);
-    }
-  }, []);
+      try {
+        // Calculate SHA-256 hash in the browser
+        const hash = await hashFile(file);
+        setFileHash(hash);
+        setIsProcessing(false);
+        // Show modal for confirmation
+        setShowModal(true);
+      } catch {
+        setError("Failed to calculate file hash. Please try again.");
+        setIsProcessing(false);
+        if (onError) onError("Failed to calculate file hash");
+      }
+    },
+    [onError]
+  );
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        await processFile(files[0]);
+      }
+    },
+    [processFile]
+  );
 
   const handleFileSelect = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,28 +89,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         await processFile(files[0]);
       }
     },
-    []
+    [processFile]
   );
-
-  const processFile = async (file: File) => {
-    setIsProcessing(true);
-    setError(null);
-    setSuccess(null);
-    setSelectedFile(file);
-
-    try {
-      // Calculate SHA-256 hash in the browser
-      const hash = await hashFile(file);
-      setFileHash(hash);
-      setIsProcessing(false);
-      // Show modal for confirmation
-      setShowModal(true);
-    } catch (err) {
-      setError("Failed to calculate file hash. Please try again.");
-      setIsProcessing(false);
-      if (onError) onError("Failed to calculate file hash");
-    }
-  };
 
   const handleConfirmAnchor = async () => {
     if (!fileHash || !selectedFile) return;
@@ -121,10 +132,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         setFileHash(null);
         setSuccess(null);
       }, 5000);
-    } catch (err: any) {
+    } catch (error) {
       setShowModal(false);
-      setError(err.message || "Failed to anchor document. Please try again.");
-      if (onError) onError(err.message);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to anchor document. Please try again.";
+      setError(errorMessage);
+      if (onError) onError(errorMessage);
     } finally {
       setIsProcessing(false);
     }

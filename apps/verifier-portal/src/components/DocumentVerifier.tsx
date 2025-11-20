@@ -11,7 +11,12 @@
 
 import React, { useState, useCallback } from "react";
 import { hashFile, formatFileSize } from "@/lib/fileHasher";
-import { Button } from "./Button";
+
+interface VerificationDetails {
+  transactionId?: string;
+  timestamp?: string;
+  organization?: string;
+}
 
 export const DocumentVerifier: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -20,7 +25,7 @@ export const DocumentVerifier: React.FC = () => {
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [verificationResult, setVerificationResult] = useState<{
     verified: boolean;
-    details?: any;
+    details?: VerificationDetails;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,27 +39,7 @@ export const DocumentVerifier: React.FC = () => {
     setIsDragging(false);
   }, []);
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      await processFile(files[0]);
-    }
-  }, []);
-
-  const handleFileSelect = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (files && files.length > 0) {
-        await processFile(files[0]);
-      }
-    },
-    []
-  );
-
-  const processFile = async (file: File) => {
+  const processFile = useCallback(async (file: File) => {
     setIsProcessing(true);
     setError(null);
     setVerificationResult(null);
@@ -67,11 +52,34 @@ export const DocumentVerifier: React.FC = () => {
 
       // Automatically verify after hashing
       await verifyHash(hash, file.name);
-    } catch (err) {
+    } catch {
       setError("Failed to calculate file hash. Please try again.");
       setIsProcessing(false);
     }
-  };
+  }, []);
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        await processFile(files[0]);
+      }
+    },
+    [processFile]
+  );
+
+  const handleFileSelect = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        await processFile(files[0]);
+      }
+    },
+    [processFile]
+  );
 
   const verifyHash = async (hash: string, fileName: string) => {
     try {
@@ -97,8 +105,12 @@ export const DocumentVerifier: React.FC = () => {
         verified: data.verified,
         details: data.details,
       });
-    } catch (err: any) {
-      setError(err.message || "Failed to verify document. Please try again.");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to verify document. Please try again.";
+      setError(errorMessage);
     } finally {
       setIsProcessing(false);
     }

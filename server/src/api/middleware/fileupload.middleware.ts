@@ -4,7 +4,7 @@
  */
 
 import multer from "multer";
-import { Request } from "express";
+import { Request, Response, NextFunction } from "express";
 
 /**
  * Configure multer to store files in memory as Buffer objects
@@ -47,8 +47,13 @@ const upload = multer({
 
 /**
  * Middleware to handle single file upload with field name "document"
+ * Note: Currently unused - verification now uses hash-only approach
  */
-export const uploadDocument = upload.single("document");
+export const uploadDocument = upload.single("document") as (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => void;
 
 /**
  * Export the upload instance for potential custom configurations

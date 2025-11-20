@@ -8,10 +8,12 @@
     "dev:issuer": "pnpm --filter issuer-portal dev",
     "dev:verifier": "pnpm --filter verifier-portal dev",
     "dev:server": "pnpm --filter server dev",
+    "dev:extension": "pnpm --filter verifier-extension dev",
     "build": "pnpm -r build",
     "build:issuer": "pnpm --filter issuer-portal build",
     "build:verifier": "pnpm --filter verifier-portal build",
     "build:server": "pnpm --filter server build",
+    "build:extension": "pnpm --filter verifier-extension build",
     "lint": "pnpm -r lint",
     "clean": "pnpm -r clean && rm -rf node_modules"
   },
@@ -24,5 +26,44 @@
     "node": ">=20.0.0",
     "pnpm": ">=10.0.0"
   },
-  "packageManager": "pnpm@10.0.0"
+  "packageManager": "pnpm@10.0.0",
+  "dependencies": {
+    "@hashgraph/sdk": "^2.49.2",
+    "@hiero-did-sdk/client": "^0.1.6",
+    "@hiero-did-sdk/core": "^0.1.6",
+    "@hiero-did-sdk/crypto": "^0.1.6",
+    "@hiero-did-sdk/registrar": "^0.1.6",
+    "@hiero-did-sdk/resolver": "^0.1.6",
+    "@prisma/client": "^5.19.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.546.0",
+    "multer": "^1.4.5-lts.1",
+    "next": "^15.5.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/chrome": "^0.1.30",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.14.15",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "esbuild": "^0.27.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.5",
+    "prisma": "^5.19.1",
+    "source-map-support": "^0.5.21",
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4",
+    "vite": "^7.2.2"
+  }
 }

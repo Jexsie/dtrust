@@ -53,21 +53,21 @@ function createHederaClient(): Client {
 }
 
 /**
- * Submits a document hash to the Hedera Consensus Service (HCS)
+ * Submits a document proof to the Hedera Consensus Service (HCS)
  *
- * @param hash - SHA-256 hash of the document to anchor
+ * @param message - JSON string containing the proof: { hash, did, signature }
  * @returns Promise resolving to transaction ID and consensus timestamp
  * @throws {Error} If submission to HCS fails
  */
 export async function submitHashToHCS(
-  hash: string
+  message: string
 ): Promise<HederaSubmissionResult> {
   const client = createHederaClient();
 
   try {
     const transaction = new TopicMessageSubmitTransaction({
       topicId: config.hedera.topicId,
-      message: hash,
+      message: message,
     });
 
     const txResponse = await transaction.execute(client);
@@ -90,8 +90,8 @@ export async function submitHashToHCS(
       consensusTimestamp: consensusTimestamp.toString(),
     };
 
-    console.log("Successfully submitted hash to HCS:", {
-      hash,
+    console.log("Successfully submitted proof to HCS:", {
+      message,
       transactionId: result.transactionId,
       consensusTimestamp: result.consensusTimestamp,
     });

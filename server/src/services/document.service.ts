@@ -3,21 +3,21 @@
  * Handles document-related operations including hashing and database interactions
  */
 
-import crypto from "crypto";
+// @ts-ignore: No type definitions for this package
+import { Crypto } from "@hiero-did-sdk/crypto";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 /**
- * Calculates the SHA-256 hash of a file buffer
+ * Calculates the SHA-256 hash of a file buffer using Hiero SDK crypto utility
  *
  * @param fileBuffer - Buffer containing the file data
  * @returns Hexadecimal string representation of the SHA-256 hash
  */
 export function calculateFileHash(fileBuffer: Buffer): string {
-  const hash = crypto.createHash("sha256");
-  hash.update(fileBuffer);
-  return hash.digest("hex");
+  // Crypto.sha256 accepts Buffer directly (which is a Uint8Array)
+  return Crypto.sha256(fileBuffer);
 }
 
 /**
@@ -27,7 +27,7 @@ export interface DocumentProofData {
   documentHash: string;
   hederaTransactionId: string;
   consensusTimestamp: string;
-  organizationId: string;
+  issuerDid: string;
 }
 
 /**
@@ -39,14 +39,6 @@ export interface DocumentProofData {
 export async function findProofByHash(documentHash: string) {
   return await prisma.documentProof.findUnique({
     where: { documentHash },
-    include: {
-      organization: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
   });
 }
 
@@ -62,37 +54,20 @@ export async function createDocumentProof(proofData: DocumentProofData) {
       documentHash: proofData.documentHash,
       hederaTransactionId: proofData.hederaTransactionId,
       consensusTimestamp: proofData.consensusTimestamp,
-      organizationId: proofData.organizationId,
-    },
-    include: {
-      organization: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
+      issuerDid: proofData.issuerDid,
     },
   });
 }
 
 /**
  * Retrieves a document proof by its hash
- * Includes organization information
  *
  * @param documentHash - SHA-256 hash of the document
- * @returns Promise resolving to the proof with organization data, or null if not found
+ * @returns Promise resolving to the proof, or null if not found
  */
-export async function getProofWithOrganization(documentHash: string) {
+export async function getProofByHash(documentHash: string) {
   return await prisma.documentProof.findUnique({
     where: { documentHash },
-    include: {
-      organization: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
   });
 }
 
