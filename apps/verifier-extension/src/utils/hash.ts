@@ -3,6 +3,7 @@
  * Uses @hiero-did-sdk/crypto for standardized SHA-256 hashing
  */
 
+// @ts-ignore: No type definitions for this package
 import { Crypto } from "@hiero-did-sdk/crypto";
 
 /**

@@ -478,7 +478,7 @@ export default function AdminSignupPage() {
                           <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
                             Copy these credentials now. This is the only time
                             they will be displayed. Store them securely in your
-                            organization's environment variables.
+                            organization&apos;s environment variables.
                           </p>
                         </div>
                       </div>
@@ -568,14 +568,14 @@ export default function AdminSignupPage() {
                             </span>
                             <span className="text-slate-400">=</span>
                             <span className="text-amber-300">
-                              "{credentials.apiKey}"
+                              &quot;{credentials.apiKey}&quot;
                             </span>
                           </div>
                           <div>
                             <span className="text-emerald-400">DTRUST_DID</span>
                             <span className="text-slate-400">=</span>
                             <span className="text-amber-300">
-                              "{credentials.did}"
+                              &quot;{credentials.did}&quot;
                             </span>
                           </div>
                           <div>
@@ -584,7 +584,7 @@ export default function AdminSignupPage() {
                             </span>
                             <span className="text-slate-400">=</span>
                             <span className="text-amber-300">
-                              "{credentials.privateKey}"
+                              &quot;{credentials.privateKey}&quot;
                             </span>
                           </div>
                           <div>
@@ -593,7 +593,7 @@ export default function AdminSignupPage() {
                             </span>
                             <span className="text-slate-400">=</span>
                             <span className="text-amber-300">
-                              "http://localhost:3001"
+                              &quot;http://localhost:3001&quot;
                             </span>
                           </div>
                         </div>
@@ -605,7 +605,7 @@ export default function AdminSignupPage() {
                       onClick={handleCloseCredentials}
                       className="w-full py-3 px-6 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-colors"
                     >
-                      I've Saved My Credentials
+                      I&apos;ve Saved My Credentials
                     </button>
                   </div>
                 </div>

@@ -21,7 +21,6 @@ interface AnchoredDocument {
 
 export default function HomePage() {
   const [documents, setDocuments] = useState<AnchoredDocument[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("");
   const [isAnchorModalOpen, setIsAnchorModalOpen] = useState(false);

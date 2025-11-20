@@ -5,6 +5,7 @@
  * of files entirely in the browser. Files are never sent to the server.
  */
 
+// @ts-expect-error: No type definitions for this package
 import { Crypto } from "@hiero-did-sdk/crypto";
 
 /**

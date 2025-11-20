@@ -5,7 +5,9 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build": "rm -rf dist && node esbuild.config.js",
+    "build:watch": "node esbuild.config.js --watch",
+    "build:prod": "NODE_ENV=production rm -rf dist && node esbuild.config.js",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

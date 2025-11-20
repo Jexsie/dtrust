@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrivateKey } from "@hashgraph/sdk";
+// @ts-expect-error: No type definitions for this package
 import { Crypto } from "@hiero-did-sdk/crypto";
 
 /**

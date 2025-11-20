@@ -3,6 +3,7 @@
  * Handles document-related operations including hashing and database interactions
  */
 
+// @ts-ignore: No type definitions for this package
 import { Crypto } from "@hiero-did-sdk/crypto";
 import { PrismaClient } from "@prisma/client";
 

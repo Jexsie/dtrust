@@ -18,11 +18,6 @@ export async function signHash(
   privateKeyHex: string
 ): Promise<string> {
   try {
-    // Convert hex strings to ArrayBuffer
-    const hashBuffer = Uint8Array.from(
-      hash.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
-    );
-
     // For Hedera, we need to use ECDSA secp256k1 signing
     // Since we're in the browser, we'll use Web Crypto API if available
     // Otherwise, we'll need to use a library like @hashgraph/sdk
