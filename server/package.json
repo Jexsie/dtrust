@@ -1,0 +1,24 @@
+{
+  "name": "dtrust-api",
+  "version": "1.0.0",
+  "description": "Dtrust - Asset verification tool built on Hedera Hashgraph",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "rm -rf dist && node esbuild.config.js",
+    "build:watch": "node esbuild.config.js --watch",
+    "build:prod": "NODE_ENV=production rm -rf dist && node esbuild.config.js",
+    "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
+  },
+  "keywords": [
+    "hedera",
+    "blockchain",
+    "verification",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT"
+}

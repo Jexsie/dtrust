@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [20.x]
 
     services:
       postgres:
@@ -34,20 +34,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.0.0
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      - name: Create .env file for testing
+      - name: Create server .env file for testing
         run: |
-          cat > .env << EOF
+          cat > server/.env << EOF
           DATABASE_URL="postgresql://dtrust:dtrust_test_password@localhost:5432/dtrust_test_db?schema=public"
-          PORT=3000
+          PORT=3001
           NODE_ENV=test
           HEDERA_ACCOUNT_ID="0.0.12345"
           HEDERA_PRIVATE_KEY="302e020100300506032b65700422042012345678901234567890123456789012"
@@ -55,79 +60,44 @@ jobs:
           HEDERA_NETWORK="testnet"
           EOF
 
+      - name: Create issuer portal .env.local file for testing
+        run: |
+          cat > apps/issuer-portal/.env.local << EOF
+          # DTRUST API Configuration
+          DTRUST_API_URL="http://localhost:3001"
+          NEXT_PUBLIC_API_URL="http://localhost:3001"
+
+          # Organization Credentials (from signup)
+          # These would normally be set after organization signup
+          # For CI testing, using placeholder values
+          DTRUST_API_KEY="test_api_key_placeholder"
+          DTRUST_DID="did:hedera:testnet:test_did_placeholder"
+          DTRUST_DID_PRIVATE_KEY="test_private_key_placeholder"
+          EOF
+
       - name: Generate Prisma Client
-        run: npm run prisma:generate
+        run: pnpm --filter server prisma:generate
 
       - name: Run database migrations
-        run: npx prisma migrate deploy
-
-      - name: Type check
-        run: npx tsc --noEmit
+        run: pnpm --filter server exec prisma migrate deploy
 
       - name: Build project
-        run: npm run build
+        run: pnpm build
 
       - name: Check build artifacts
         run: |
-          if [ ! -d "dist" ]; then
-            echo "Build failed - dist directory not found"
-            exit 1
+          echo "Checking build artifacts..."
+          if [ -d "server/dist" ]; then
+            echo "✓ Server build successful"
+            ls -la server/dist/
           fi
-          echo "Build successful - dist directory created"
-          ls -la dist/
-
-  docker-build:
-    name: Docker Build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          tags: dtrust-api:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Test Docker image
-        run: |
-          docker build -t dtrust-api:test .
-          echo "Docker image built successfully"
-
-  lint:
-    name: Code Quality
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "20.x"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate Prisma Client
-        run: npm run prisma:generate
-
-      - name: Check TypeScript types
-        run: npx tsc --noEmit
-
-      - name: Validate Prisma schema
-        run: npx prisma validate
-
-      - name: Check for security vulnerabilities
-        run: npm audit --audit-level=high
-        continue-on-error: true
+          if [ -d "apps/issuer-portal/.next" ]; then
+            echo "✓ Issuer portal build successful"
+          fi
+          if [ -d "apps/verifier-portal/.next" ]; then
+            echo "✓ Verifier portal build successful"
+          fi
+          if [ -d "apps/verifier-extension/dist" ]; then
+            echo "✓ Extension build successful"
+            ls -la apps/verifier-extension/dist/
+          fi

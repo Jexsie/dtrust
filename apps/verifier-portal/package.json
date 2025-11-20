@@ -1,0 +1,11 @@
+{
+  "name": "verifier-portal",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack --port 3003",
+    "build": "next build --turbopack",
+    "start": "next start --port 3003",
+    "lint": "eslint"
+  }
+}
