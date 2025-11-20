@@ -57,7 +57,7 @@
     "@types/react-dom": "^19",
     "esbuild": "^0.27.0",
     "eslint": "^9",
-    "eslint-config-next": "15.5.5",
+    "eslint-config-next": "16.0.3",
     "prisma": "^5.19.1",
     "source-map-support": "^0.5.21",
     "tailwindcss": "^4",
