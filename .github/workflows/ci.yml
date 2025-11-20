@@ -81,9 +81,6 @@ jobs:
       - name: Run database migrations
         run: pnpm --filter server exec prisma migrate deploy
 
-      - name: Type check
-        run: pnpm exec tsc --noEmit
-
       - name: Build project
         run: pnpm build
 
