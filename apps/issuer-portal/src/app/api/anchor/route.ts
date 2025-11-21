@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PrivateKey } from "@hashgraph/sdk";
 // @ts-expect-error: No type definitions for this package
 import { Crypto } from "@hiero-did-sdk/crypto";
+import { getApiUrl } from "@/lib/api";
 
 /**
  * Server-side proxy endpoint for anchoring documents
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     const didPrivateKey = process.env.DTRUST_DID_PRIVATE_KEY;
     const did = process.env.DTRUST_DID;
     const apiKey = process.env.DTRUST_API_KEY;
-    const apiUrl = process.env.DTRUST_API_URL || "http://localhost:3001";
+    const apiUrl = getApiUrl("/api/v1/anchor");
 
     if (!didPrivateKey) {
       console.error("DTRUST_DID_PRIVATE_KEY environment variable is not set");
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
 
     // Call the backend anchor API with API key authentication
     // The server expects: Authorization: Bearer <API_KEY>
-    const response = await fetch(`${apiUrl}/api/v1/anchor`, {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

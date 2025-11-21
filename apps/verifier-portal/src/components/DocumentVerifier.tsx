@@ -4,13 +4,14 @@
  * Public document verification tool that:
  * 1. Calculates SHA-256 hash in the browser using SubtleCrypto
  * 2. Sends the hash to the verification API
- * 3. Displays clear verification result: ✅ Verified or ❌ Not Verified
+ * 3. Displays clear verification result: Verified or Not Verified
  */
 
 "use client";
 
 import React, { useState, useCallback } from "react";
 import { hashFile, formatFileSize } from "@/lib/fileHasher";
+import { getApiUrl } from "@/lib/api";
 
 interface VerificationDetails {
   transactionId?: string;
@@ -84,7 +85,7 @@ export const DocumentVerifier: React.FC = () => {
   const verifyHash = async (hash: string, fileName: string) => {
     try {
       // Send hash to verification API
-      const response = await fetch("http://localhost:3001/api/v1/verify", {
+      const response = await fetch(getApiUrl("/api/v1/verify"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -11,6 +11,7 @@
 
 import React, { useState, useCallback } from "react";
 import { hashFile, formatFileSize } from "@/lib/fileHasher";
+import { getApiUrl } from "@/lib/api";
 import { FilePreviewModal } from "./FilePreviewModal";
 
 interface FileUploaderProps {
@@ -101,7 +102,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
     try {
       // Send only the hash to the backend
-      const response = await fetch("http://localhost:3001/api/v1/anchor", {
+      const response = await fetch(getApiUrl("/api/v1/anchor"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

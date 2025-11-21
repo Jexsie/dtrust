@@ -9,6 +9,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { hashFile } from "@/lib/fileHasher";
+import { getApiUrl } from "@/lib/api";
 import ThemeToggle from "@/components/ThemeToggle";
 import WelcomeScreen from "@/components/WelcomeScreen";
 import CompactSidebar from "@/components/CompactSidebar";
@@ -101,7 +102,7 @@ export default function CommandCenterPage() {
       console.log(`File hash calculated: ${documentHash}`);
 
       // Send only the hash to the server (not the file)
-      const response = await fetch("http://localhost:3001/api/v1/verify", {
+      const response = await fetch(getApiUrl("/api/v1/verify"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
